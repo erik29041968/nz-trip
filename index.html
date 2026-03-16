@@ -8,10 +8,13 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            /* Air New Zealand Tail Background */
-            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), 
-                        url('https://images.unsplash.com/photo-1570646420807-7092809d395d?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
+            /* High-resolution Air NZ Tail Image */
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), 
+                        url('https://www.airnewzealand.co.nz/cmsassets/640x360/air-new-zealand-boeing-787-9-tail-black-and-white-1100x619.jpg');
             background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
             background-color: #000;
             color: white; 
             margin: 0; padding: 20px; 
@@ -20,14 +23,14 @@
         }
         .container { width: 100%; max-width: 450px; }
         .card { 
-            background: rgba(0, 0, 0, 0.65); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.7); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             padding: 20px; 
             border-radius: 20px; 
             margin-bottom: 20px; 
             border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .balance-box { 
             background: #ffffff; 
@@ -47,22 +50,18 @@
             color: white; font-size: 16px; outline: none;
         }
         .add-btn { 
-            width: 100%; padding: 16px; background: #222; border: 1px solid #fff; 
+            width: 100%; padding: 16px; background: #000; border: 1px solid #fff; 
             color: white; border-radius: 12px; font-weight: bold; 
             cursor: pointer; margin-top: 10px; text-transform: uppercase;
             letter-spacing: 2px;
         }
-        .add-btn:active { background: #fff; color: #000; }
-        
         table { width: 100%; border-collapse: collapse; }
         td { padding: 15px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; }
-        
         .name-erik { color: #00d4ff; font-weight: bold; }
         .name-nadine { color: #ff6ec7; font-weight: bold; }
-        
         .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
         .sync-status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 15px; font-weight: 600; text-transform: uppercase; }
-        h2 { text-align: center; margin-top: 0; letter-spacing: 5px; font-weight: 900; color: #fff; }
+        h2 { text-align: center; margin-top: 0; letter-spacing: 5px; font-weight: 900; color: #fff; text-shadow: 2px 2px 10px #000; }
     </style>
 </head>
 <body>
@@ -79,7 +78,7 @@
         <label>Date</label>
         <input type="date" id="date">
         <label>Description</label>
-        <input type="text" id="desc" placeholder="Coffee, Car Rental, etc.">
+        <input type="text" id="desc" placeholder="Expense description">
         <label>Amount ($)</label>
         <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
         <label>Who paid?</label>
@@ -102,7 +101,6 @@
 </div>
 
 <script>
-    // --- YOUR SECURE KEYS ---
     const BIN_ID = '69b88720aa77b81da9ee9c67'; 
     const API_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
 
