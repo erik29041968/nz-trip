@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,7 +9,7 @@
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), 
-                        url('./background.jpeg?v=4');
+                        url('./background.jpeg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -19,11 +19,11 @@
             min-height: 100vh;
         }
         .container { width: 100%; max-width: 420px; }
+        .header { text-align: center; padding: 20px 0; color: white; }
+        .header h2 { margin: 0; letter-spacing: 4px; font-weight: 900; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        .status { text-align: center; font-size: 11px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; }
         
-        .header-box { text-align: center; padding: 10px 0 20px 0; }
-        .kiwi-label { font-size: 3rem; display: block; margin-bottom: -10px; opacity: 0.9; }
-        h2 { margin: 0; letter-spacing: 3px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); text-transform: uppercase; }
-
+        /* Solid White Cards */
         .card { 
             background: #ffffff; 
             padding: 20px; 
@@ -32,10 +32,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             color: #333;
         }
-        .balance { 
+        .balance-box { 
             background: #f8f9fa; 
             color: #000; 
-            padding: 22px; 
+            padding: 20px; 
             border-radius: 12px; 
             text-align: center; 
             font-size: 1.3rem; 
@@ -48,7 +48,7 @@
             width: 100%; padding: 14px; margin: 6px 0 12px 0; border-radius: 10px; 
             border: 1px solid #ccc; background: #fff; color: #000; font-size: 16px; outline: none;
         }
-        .add-btn { 
+        .btn { 
             width: 100%; padding: 18px; background: #000; border: none; 
             color: white; border-radius: 12px; font-weight: bold; 
             cursor: pointer; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px;
@@ -57,39 +57,47 @@
         td { padding: 15px 5px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
         .erik { color: #007aff; font-weight: bold; }
         .nadine { color: #ff2d55; font-weight: bold; }
-        .status { text-align: center; font-size: 11px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
-        #totalCost { text-align: center; margin-top: 20px; font-weight: bold; color: #888; border-top: 1px solid #eee; padding-top: 15px; }
+        .del { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
+        #totalVal { text-align: center; margin-top: 20px; font-weight: bold; color: #888; border-top: 1px solid #eee; padding-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-box">
-        <span class="kiwi-label">🥝</span>
-        <h2>AIR NZ TRIP</h2>
+    <div class="header">
+        <h2>🇳🇿 AIR NZ TRIP</h2>
     </div>
 
-    <div id="status" class="status">Connecting...</div>
+    <div id="syncStatus" class="status">Connecting...</div>
     
     <div class="card">
-        <div id="balanceText" class="balance">...</div>
+        <div id="balDisplay" class="balance-box">Loading...</div>
     </div>
 
     <div class="card">
         <label>Date</label>
-        <input type="date" id="date">
+        <input type="date" id="inDate">
         <label>Description</label>
-        <input type="text" id="desc" placeholder="What did we buy?">
+        <input type="text" id="inDesc" placeholder="Flight, Dinner, Coffee...">
         <label>Amount ($)</label>
-        <input type="number" id="amount" placeholder="0.00" inputmode="decimal">
+        <input type="number" id="inAmt" placeholder="0.00" inputmode="decimal">
         <label>Who Paid?</label>
-        <select id="payer">
+        <select id="inWho">
             <option value="Erik">Erik</option>
             <option value="Nadine">Nadine</option>
         </select>
-        <button class="add-btn" onclick="addExpense()">Add Expense</button>
+        <button class="btn" onclick="addOne()">Add Expense</button>
     </div>
 
     <div class="card">
-        <table><tbody id="list
+        <table><tbody id="listBody"></tbody></table>
+        <div id="totalVal"></div>
+        <center>
+            <button onclick="fetchData()" style="background:none; border:none; color:rgba(255,255,255,0.5); text-decoration:underline; font-size: 10px; cursor:pointer; margin-top:20px;">REFRESH DATA</button>
+        </center>
+    </div>
+</div>
+
+<script>
+    const B_ID = '69b88720aa77b81da9ee9c67'; 
+    const A_KEY = '$2a$10$RfeNG6fuZHWzfHxMy
