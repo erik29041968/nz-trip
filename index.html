@@ -8,9 +8,9 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            /* High-resolution Air NZ Tail Image */
+            /* Using a reliable public image link */
             background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), 
-                        url('https://www.airnewzealand.co.nz/cmsassets/640x360/air-new-zealand-boeing-787-9-tail-black-and-white-1100x619.jpg');
+                        url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Air_New_Zealand_Koru_Tail.jpg/800px-Air_New_Zealand_Koru_Tail.jpg');
             background-size: cover;
             background-position: center center;
             background-attachment: fixed;
@@ -24,13 +24,13 @@
         .container { width: 100%; max-width: 450px; }
         .card { 
             background: rgba(0, 0, 0, 0.7); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 20px; 
             border-radius: 20px; 
             margin-bottom: 20px; 
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .balance-box { 
             background: #ffffff; 
@@ -41,9 +41,8 @@
             font-size: 1.4rem; 
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
-        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
+        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #ccc; text-transform: uppercase; letter-spacing: 1px; }
         input, select { 
             width: 100%; padding: 14px; margin: 5px 0 10px 0; border-radius: 10px; 
             border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); 
@@ -171,21 +170,5 @@
                 <td style="font-weight:600;">${e.desc}</td>
                 <td style="font-weight:900;">$${e.amount.toFixed(2)}</td>
                 <td class="${e.payer === 'Erik' ? 'name-erik' : 'name-nadine'}">${e.payer}</td>
-                <td style="text-align:right;"><button class="del-btn" onclick="deleteLine(${e.id})">✕</button></td>
-            </tr>`;
-        });
-        const total = eT + nT;
-        const diff = eT - (total/2);
-        document.getElementById('totalCost').innerText = "TRIP TOTAL: $" + total.toFixed(2);
-        const bal = document.getElementById('balanceText');
-        if (expenses.length === 0) bal.innerText = "Welcome Aboard";
-        else if (diff > 0) bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
-        else if (diff < 0) bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
-        else bal.innerText = "All Even! 🇳🇿";
-    }
+                <td style="text-align:right;"><button class="del-btn" onclick="deleteLine(${e.
 
-    document.getElementById('date').valueAsDate = new Date();
-    loadFromCloud();
-</script>
-</body>
-</html>
