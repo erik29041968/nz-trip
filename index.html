@@ -2,116 +2,132 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NZ Trip Settlement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NZ Trip Sync</title>
     <style>
-        body {
-            font-family: -apple-system, system-ui, sans-serif;
-            background: #1a1a1a;
-            color: white;
-            margin: 0; padding: 20px;
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), 
+                        url('https://images.unsplash.com/photo-1469521669194-bdf95559c13d?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white; 
+            margin: 0; padding: 20px; 
             display: flex; justify-content: center;
+            min-height: 100vh;
         }
-        .container { width: 100%; max-width: 500px; }
-        .card {
-            background: #252525;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .container { width: 100%; max-width: 450px; }
+        .card { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 20px; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        .balance-box {
-            background: #ffffff;
-            color: #007aff;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 1.4rem;
+        .balance-box { 
+            background: rgba(255, 255, 255, 0.95); 
+            color: #1a1a1a; 
+            padding: 20px; 
+            border-radius: 15px; 
+            text-align: center; 
+            font-size: 1.4rem; 
             font-weight: 900;
         }
-        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #888; text-transform: uppercase; }
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin: 5px 0 15px 0;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #333;
-            color: white;
-            font-size: 16px;
-            box-sizing: border-box;
+        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #ddd; text-transform: uppercase; }
+        input, select { 
+            width: 100%; padding: 12px; margin: 5px 0 10px 0; border-radius: 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.4); 
+            color: white; font-size: 16px; box-sizing: border-box; 
         }
-        .add-btn { background: #007aff; border: none; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 12px 5px; border-bottom: 1px solid #333; font-size: 0.9rem; }
-        .name-erik { color: #00ccff; font-weight: bold; }
-        .name-nadine { color: #ff69b4; font-weight: bold; }
-        
-        /* THE TARGETED DELETE BUTTON */
-        .del-btn { 
-            color: #ff3b30; 
-            background: rgba(255, 59, 48, 0.1); 
-            border: none; 
-            cursor: pointer; 
-            width: 30px; 
-            height: 30px;
-            border-radius: 50%;
-            font-size: 1rem; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
+        .add-btn { 
+            width: 100%; padding: 15px; background: #007aff; border: none; 
+            color: white; border-radius: 12px; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; text-transform: uppercase;
         }
-        .reset-btn { background: none; border: none; color: #555; font-size: 11px; text-decoration: underline; cursor: pointer; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 15px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; }
+        .name-erik { color: #4cd9ff; font-weight: bold; }
+        .name-nadine { color: #ff85c1; font-weight: bold; }
+        .del-btn { color: #ff3b30; background: rgba(255,59,48,0.2); border: none; cursor: pointer; border-radius: 50%; width: 28px; height: 28px; }
+        .sync-status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 15px; font-weight: 600; }
+        h2 { text-align: center; margin-top: 0; letter-spacing: 3px; font-weight: 900; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 style="text-align:center; letter-spacing: 2px;">🇳🇿 NZ SETTLEMENT</h2>
+    <h2>🇳🇿 NZ TRIP</h2>
+    <div class="sync-status" id="status">Checking Cloud Sync...</div>
     
     <div class="card">
-        <div class="balance-box" id="balanceText">No entries yet</div>
+        <div class="balance-box" id="balanceText">Loading...</div>
     </div>
 
     <div class="card">
         <label>Date</label>
         <input type="date" id="date">
         <label>Description</label>
-        <input type="text" id="desc" placeholder="e.g. Coffee at Milford Sound">
+        <input type="text" id="desc" placeholder="Expense description">
         <label>Amount ($)</label>
-        <input type="number" id="amount" step="0.01" placeholder="0.00">
+        <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
         <label>Who paid?</label>
         <select id="payer">
             <option value="Erik">Erik</option>
             <option value="Nadine">Nadine</option>
         </select>
-        <button class="add-btn" onclick="addExpense()">ADD EXPENSE</button>
+        <button class="add-btn" onclick="addExpense()">Add Expense</button>
     </div>
 
     <div class="card">
-        <table>
-            <tbody id="list"></tbody>
-        </table>
-        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.2rem;"></p>
-        
+        <table><tbody id="list"></tbody></table>
+        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.1rem;"></p>
         <center>
-            <button class="reset-btn" onclick="clearAll()">Reset All Data</button>
+            <button onclick="loadFromCloud()" style="background:none; border:none; color:rgba(255,255,255,0.5); text-decoration:underline; font-size: 12px; cursor:pointer;">
+                🔄 Refresh Sync
+            </button>
         </center>
     </div>
 </div>
 
 <script>
+    const BIN_ID = '69b88720aa77b81da9ee9c67'; 
+    const API_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
+
     let expenses = [];
-    
-    // 1. Load data specifically for this app
-    try {
-        const saved = localStorage.getItem('nz_trip_data');
-        if (saved) {
-            expenses = JSON.parse(saved);
+
+    async function loadFromCloud() {
+        const statusEl = document.getElementById('status');
+        statusEl.innerText = "Syncing...";
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': API_KEY }
+            });
+            const data = await res.json();
+            expenses = data.record || [];
+            render();
+            statusEl.innerText = "Cloud Synced ✅";
+        } catch (e) {
+            statusEl.innerText = "Offline Mode ⚠️";
         }
-    } catch (e) {
-        expenses = [];
+    }
+
+    async function saveToCloud() {
+        const statusEl = document.getElementById('status');
+        statusEl.innerText = "Saving...";
+        try {
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                body: JSON.stringify(expenses)
+            });
+            statusEl.innerText = "All Changes Saved ✅";
+        } catch (e) {
+            statusEl.innerText = "Save Failed ❌";
+        }
     }
 
     function addExpense() {
@@ -119,84 +135,50 @@
         const desc = document.getElementById('desc').value;
         const amount = parseFloat(document.getElementById('amount').value);
         const payer = document.getElementById('payer').value;
-
-        if (!date || !desc || isNaN(amount)) {
-            alert("Please fill in all fields");
-            return;
-        }
-
-        // We assign a unique ID based on the exact millisecond it was created
-        const newEntry = { 
-            id: Date.now(), 
-            date, 
-            desc, 
-            amount, 
-            payer 
-        };
-        
-        expenses.push(newEntry);
-        saveAndRender();
-        
-        // Clear inputs
+        if (!date || !desc || isNaN(amount)) return alert("Fill all fields");
+        expenses.push({ id: Date.now(), date, desc, amount, payer });
+        render();
+        saveToCloud();
         document.getElementById('desc').value = '';
         document.getElementById('amount').value = '';
     }
 
-    // 2. TARGETED DELETE: This filters the array to keep everything EXCEPT the clicked ID
     function deleteLine(id) {
-        if(confirm("Delete this specific expense?")) {
-            expenses = expenses.filter(item => item.id !== id);
-            saveAndRender();
+        if(confirm("Delete this entry?")) {
+            expenses = expenses.filter(e => e.id !== id);
+            render();
+            saveToCloud();
         }
-    }
-
-    function saveAndRender() {
-        localStorage.setItem('nz_trip_data', JSON.stringify(expenses));
-        render();
     }
 
     function render() {
         const list = document.getElementById('list');
-        const bal = document.getElementById('balanceText');
         list.innerHTML = '';
-        
-        let erikTotal = 0;
-        let nadineTotal = 0;
-
-        // Sort so the latest entry is always at the top
-        expenses.sort((a, b) => b.id - a.id);
-
+        let eT = 0, nT = 0;
+        expenses.sort((a,b) => b.id - a.id);
         expenses.forEach(e => {
-            if (e.payer === 'Erik') erikTotal += e.amount; 
-            else nadineTotal += e.amount;
-
-            const d = e.date.split('-').reverse().slice(0,2).join('/'); 
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td style="color:#888;">${d}</td>
-                <td style="font-weight:500;">${e.desc}</td>
+            if (e.payer === 'Erik') eT += e.amount; else nT += e.amount;
+            const d = e.date.split('-').reverse().slice(0,2).join('/');
+            list.innerHTML += `<tr>
+                <td style="color:#bbb;">${d}</td>
+                <td style="font-weight:600;">${e.desc}</td>
                 <td style="font-weight:bold;">$${e.amount.toFixed(2)}</td>
                 <td class="${e.payer === 'Erik' ? 'name-erik' : 'name-nadine'}">${e.payer}</td>
-                <td style="text-align:right;">
-                    <button class="del-btn" onclick="deleteLine(${e.id})">✕</button>
-                </td>
-            `;
-            list.appendChild(row);
+                <td style="text-align:right;"><button class="del-btn" onclick="deleteLine(${e.id})">✕</button></td>
+            </tr>`;
         });
-
-        const total = erikTotal + nadineTotal;
-        const diff = erikTotal - (total / 2);
-        
-        document.getElementById('totalCost').innerText = "Total Trip: $" + total.toFixed(2);
-        
-        if (expenses.length === 0) {
-            bal.innerText = "No entries yet";
-        } else if (diff > 0) {
-            bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
-        } else if (diff < 0) {
-            bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
-        } else {
-            bal.innerText = "All even! 🇳🇿";
-        }
+        const total = eT + nT;
+        const diff = eT - (total/2);
+        document.getElementById('totalCost').innerText = "Trip Total: $" + total.toFixed(2);
+        const bal = document.getElementById('balanceText');
+        if (expenses.length === 0) bal.innerText = "No entries yet";
+        else if (diff > 0) bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
+        else if (diff < 0) bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
+        else bal.innerText = "All even! 🇳🇿";
     }
+
+    document.getElementById('date').valueAsDate = new Date();
+    loadFromCloud();
+</script>
+</body>
+</html>
