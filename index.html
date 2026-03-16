@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NZ Trip Sync</title>
     <style>
+        * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            /* Updated image link for better compatibility */
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
-                        url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80');
+            /* Air New Zealand Tail Background */
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), 
+                        url('https://images.unsplash.com/photo-1570646420807-7092809d395d?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-color: #1a1a1a; /* Fallback color */
+            background-color: #000;
             color: white; 
             margin: 0; padding: 20px; 
             display: flex; justify-content: center;
@@ -21,49 +20,56 @@
         }
         .container { width: 100%; max-width: 450px; }
         .card { 
-            background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.65); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 20px; 
             border-radius: 20px; 
             margin-bottom: 20px; 
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .balance-box { 
-            background: rgba(255, 255, 255, 0.95); 
-            color: #1a1a1a; 
+            background: #ffffff; 
+            color: #000000; 
             padding: 20px; 
             border-radius: 15px; 
             text-align: center; 
             font-size: 1.4rem; 
             font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #ddd; text-transform: uppercase; }
+        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
         input, select { 
-            width: 100%; padding: 12px; margin: 5px 0 10px 0; border-radius: 10px; 
-            border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(0, 0, 0, 0.4); 
-            color: white; font-size: 16px; box-sizing: border-box; 
+            width: 100%; padding: 14px; margin: 5px 0 10px 0; border-radius: 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); 
+            color: white; font-size: 16px; outline: none;
         }
         .add-btn { 
-            width: 100%; padding: 15px; background: #007aff; border: none; 
+            width: 100%; padding: 16px; background: #222; border: 1px solid #fff; 
             color: white; border-radius: 12px; font-weight: bold; 
             cursor: pointer; margin-top: 10px; text-transform: uppercase;
+            letter-spacing: 2px;
         }
+        .add-btn:active { background: #fff; color: #000; }
+        
         table { width: 100%; border-collapse: collapse; }
         td { padding: 15px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; }
-        .name-erik { color: #4cd9ff; font-weight: bold; }
-        .name-nadine { color: #ff85c1; font-weight: bold; }
-        .del-btn { color: #ff3b30; background: rgba(255,59,48,0.2); border: none; cursor: pointer; border-radius: 50%; width: 28px; height: 28px; }
-        .sync-status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 15px; font-weight: 600; }
-        h2 { text-align: center; margin-top: 0; letter-spacing: 3px; font-weight: 900; }
+        
+        .name-erik { color: #00d4ff; font-weight: bold; }
+        .name-nadine { color: #ff6ec7; font-weight: bold; }
+        
+        .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
+        .sync-status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 15px; font-weight: 600; text-transform: uppercase; }
+        h2 { text-align: center; margin-top: 0; letter-spacing: 5px; font-weight: 900; color: #fff; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🇳🇿 NZ TRIP</h2>
-    <div class="sync-status" id="status">Checking Cloud Sync...</div>
+    <h2>AIR NZ TRIP</h2>
+    <div class="sync-status" id="status">Syncing...</div>
     
     <div class="card">
         <div class="balance-box" id="balanceText">Loading...</div>
@@ -73,7 +79,7 @@
         <label>Date</label>
         <input type="date" id="date">
         <label>Description</label>
-        <input type="text" id="desc" placeholder="Expense description">
+        <input type="text" id="desc" placeholder="Coffee, Car Rental, etc.">
         <label>Amount ($)</label>
         <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
         <label>Who paid?</label>
@@ -86,16 +92,17 @@
 
     <div class="card">
         <table><tbody id="list"></tbody></table>
-        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.1rem;"></p>
+        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.1rem; color: #aaa;"></p>
         <center>
-            <button onclick="loadFromCloud()" style="background:none; border:none; color:rgba(255,255,255,0.5); text-decoration:underline; font-size: 12px; cursor:pointer;">
-                🔄 Refresh Sync
+            <button onclick="loadFromCloud()" style="background:none; border:none; color:rgba(255,255,255,0.4); text-decoration:underline; font-size: 11px; cursor:pointer; text-transform: uppercase;">
+                Manual Refresh
             </button>
         </center>
     </div>
 </div>
 
 <script>
+    // --- YOUR SECURE KEYS ---
     const BIN_ID = '69b88720aa77b81da9ee9c67'; 
     const API_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
 
@@ -103,7 +110,7 @@
 
     async function loadFromCloud() {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = "Syncing...";
+        statusEl.innerText = "Syncing with Cloud...";
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
@@ -119,7 +126,7 @@
 
     async function saveToCloud() {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = "Saving...";
+        statusEl.innerText = "Saving to Cloud...";
         try {
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
@@ -162,21 +169,21 @@
             if (e.payer === 'Erik') eT += e.amount; else nT += e.amount;
             const d = e.date.split('-').reverse().slice(0,2).join('/');
             list.innerHTML += `<tr>
-                <td style="color:#bbb;">${d}</td>
+                <td style="color:#888;">${d}</td>
                 <td style="font-weight:600;">${e.desc}</td>
-                <td style="font-weight:bold;">$${e.amount.toFixed(2)}</td>
+                <td style="font-weight:900;">$${e.amount.toFixed(2)}</td>
                 <td class="${e.payer === 'Erik' ? 'name-erik' : 'name-nadine'}">${e.payer}</td>
                 <td style="text-align:right;"><button class="del-btn" onclick="deleteLine(${e.id})">✕</button></td>
             </tr>`;
         });
         const total = eT + nT;
         const diff = eT - (total/2);
-        document.getElementById('totalCost').innerText = "Trip Total: $" + total.toFixed(2);
+        document.getElementById('totalCost').innerText = "TRIP TOTAL: $" + total.toFixed(2);
         const bal = document.getElementById('balanceText');
-        if (expenses.length === 0) bal.innerText = "No entries yet";
+        if (expenses.length === 0) bal.innerText = "Welcome Aboard";
         else if (diff > 0) bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
         else if (diff < 0) bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
-        else bal.innerText = "All even! 🇳🇿";
+        else bal.innerText = "All Even! 🇳🇿";
     }
 
     document.getElementById('date').valueAsDate = new Date();
