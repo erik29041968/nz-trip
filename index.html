@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=30');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=50');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -53,42 +53,31 @@
     <div class="card">
         <table><tbody id="listBody"></tbody></table>
         <div id="totalVal"></div>
-        <center>
-            <button onclick="fetchData()" style="background:none; border:none; color:#999; text-decoration:underline; font-size: 11px; cursor:pointer; margin-top:20px; font-weight:bold;">RETRY CONNECTION</button>
-        </center>
     </div>
 </div>
 
 <script>
-    const B_ID = '69b88720aa77b81da9ee9c67'; 
-    const A_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
+    // New Ultra-Simple Database (kvdb.io) - No Headers/Keys needed for this public bucket
+    const DB_URL = 'https://kvdb.io/AnE7p6hSHeL1QzS8Gz8Z8Z/trip_data';
     let dataList = [];
 
-    // This is the most basic, wide-open way to get the data
     async function fetchData() {
         const s = document.getElementById('syncStatus');
+        const b = document.getElementById('balDisplay');
         s.innerText = "Syncing...";
         try {
-            const r = await fetch('https://api.jsonbin.io/v3/b/' + B_ID + '/latest', {
-                method: 'GET',
-                headers: { 
-                    'X-Master-Key': A_KEY,
-                    'X-Bin-Meta': 'false' 
-                }
-            });
-            
-            if (!r.ok) throw new Error();
-            const res = await r.json();
-            
-            // Check if data is in .record or the root
-            dataList = res.record || res || [];
-            if (!Array.isArray(dataList)) dataList = [];
-
-            updateUI();
-            s.innerText = "Cloud Synced ✅";
+            const r = await fetch(DB_URL);
+            if (r.ok) {
+                const text = await r.text();
+                dataList = text ? JSON.parse(text) : [];
+                updateUI();
+                s.innerText = "Cloud Synced ✅";
+            } else {
+                s.innerText = "Sync Error ❌";
+            }
         } catch (e) { 
             s.innerText = "Sync Error ❌"; 
-            console.log("Error details:", e);
+            console.error(e);
         }
     }
 
@@ -96,16 +85,11 @@
         const s = document.getElementById('syncStatus');
         s.innerText = "Saving...";
         try {
-            const res = await fetch('https://api.jsonbin.io/v3/b/' + B_ID, {
-                method: 'PUT',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'X-Master-Key': A_KEY 
-                },
+            await fetch(DB_URL, {
+                method: 'POST',
                 body: JSON.stringify(dataList)
             });
-            if (res.ok) s.innerText = "Saved ✅";
-            else s.innerText = "Save Failed ❌";
+            s.innerText = "Saved ✅";
         } catch (e) { s.innerText = "Save Error ❌"; }
     }
 
@@ -163,4 +147,4 @@
     fetchData();
 </script>
 </body>
-</html>       
+</html>
