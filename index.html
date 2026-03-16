@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZ Trip Settlement</title>
+    <style>
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            margin: 0; padding: 20px;
+            display: flex; justify-content: center;
+        }
+        .container { width: 100%; max-width: 500px; }
+        .card {
+            background: #252525;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .balance-box {
+            background: #ffffff;
+            color: #007aff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 900;
+        }
+        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #888; text-transform: uppercase; }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 15px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #333;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .add-btn { background: #007aff; border: none; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td { padding: 12px 5px; border-bottom: 1px solid #333; font-size: 0.9rem; }
+        .name-erik { color: #00ccff; font-weight: bold; }
+        .name-nadine { color: #ff69b4; font-weight: bold; }
+        
+        /* THE TARGETED DELETE BUTTON */
+        .del-btn { 
+            color: #ff3b30; 
+            background: rgba(255, 59, 48, 0.1); 
+            border: none; 
+            cursor: pointer; 
+            width: 30px; 
+            height: 30px;
+            border-radius: 50%;
+            font-size: 1rem; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .reset-btn { background: none; border: none; color: #555; font-size: 11px; text-decoration: underline; cursor: pointer; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align:center; letter-spacing: 2px;">🇳🇿 NZ SETTLEMENT</h2>
+    
+    <div class="card">
+        <div class="balance-box" id="balanceText">No entries yet</div>
+    </div>
+
+    <div class="card">
+        <label>Date</label>
+        <input type="date" id="date">
+        <label>Description</label>
+        <input type="text" id="desc" placeholder="e.g. Coffee at Milford Sound">
+        <label>Amount ($)</label>
+        <input type="number" id="amount" step="0.01" placeholder="0.00">
+        <label>Who paid?</label>
+        <select id="payer">
+            <option value="Erik">Erik</option>
+            <option value="Nadine">Nadine</option>
+        </select>
+        <button class="add-btn" onclick="addExpense()">ADD EXPENSE</button>
+    </div>
+
+    <div class="card">
+        <table>
+            <tbody id="list"></tbody>
+        </table>
+        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.2rem;"></p>
+        
+        <center>
+            <button class="reset-btn" onclick="clearAll()">Reset All Data</button>
+        </center>
+    </div>
+</div>
+
+<script>
+    let expenses = [];
+    
+    // 1. Load data specifically for this app
+    try {
+        const saved = localStorage.getItem('nz_trip_data');
+        if (saved) {
+            expenses = JSON.parse(saved);
+        }
+    } catch (e) {
+        expenses = [];
+    }
+
+    function addExpense() {
+        const date = document.getElementById('date').value;
+        const desc = document.getElementById('desc').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        const payer = document.getElementById('payer').value;
+
+        if (!date || !desc || isNaN(amount)) {
+            alert("Please fill in all fields");
+            return;
+        }
+
+        // We assign a unique ID based on the exact millisecond it was created
+        const newEntry = { 
+            id: Date.now(), 
+            date, 
+            desc, 
+            amount, 
+            payer 
+        };
+        
+        expenses.push(newEntry);
+        saveAndRender();
+        
+        // Clear inputs
+        document.getElementById('desc').value = '';
+        document.getElementById('amount').value = '';
+    }
+
+    // 2. TARGETED DELETE: This filters the array to keep everything EXCEPT the clicked ID
+    function deleteLine(id) {
+        if(confirm("Delete this specific expense?")) {
+            expenses = expenses.filter(item => item.id !== id);
+            saveAndRender();
+        }
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('nz_trip_data', JSON.stringify(expenses));
+        render();
+    }
+
+    function render() {
+        const list = document.getElementById('list');
+        const bal = document.getElementById('balanceText');
+        list.innerHTML = '';
+        
+        let erikTotal = 0;
+        let nadineTotal = 0;
+
+        // Sort so the latest entry is always at the top
+        expenses.sort((a, b) => b.id - a.id);
+
+        expenses.forEach(e => {
+            if (e.payer === 'Erik') erikTotal += e.amount; 
+            else nadineTotal += e.amount;
+
+            const d = e.date.split('-').reverse().slice(0,2).join('/'); 
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="color:#888;">${d}</td>
+                <td style="font-weight:500;">${e.desc}</td>
+                <td style="font-weight:bold;">$${e.amount.toFixed(2)}</td>
+                <td class="${e.payer === 'Erik' ? 'name-erik' : 'name-nadine'}">${e.payer}</td>
+                <td style="text-align:right;">
+                    <button class="del-btn" onclick="deleteLine(${e.id})">✕</button>
+                </td>
+            `;
+            list.appendChild(row);
+        });
+
+        const total = erikTotal + nadineTotal;
+        const diff = erikTotal - (total / 2);
+        
+        document.getElementById('totalCost').innerText = "Total Trip: $" + total.toFixed(2);
+        
+        if (expenses.length === 0) {
+            bal.innerText = "No entries yet";
+        } else if (diff > 0) {
+            bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
+        } else if (diff < 0) {
+            bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
+        } else {
+            bal.innerText = "All even! 🇳🇿";
+        }
+    }
