@@ -8,11 +8,11 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            /* MATCHES FILENAME: Background.JPG */
+            /* MATCHES YOUR FILENAME: background.jpeg */
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), 
-                        url('Background.JPG');
+                        url('background.jpeg');
             background-size: cover;
-            background-position: center center;
+            background-position: top center;
             background-attachment: fixed;
             background-color: #000; 
             color: white; 
@@ -39,7 +39,7 @@
             padding: 25px; 
             border-radius: 18px; 
             text-align: center; 
-            font-size: 1.4rem; 
+            font-size: 1.35rem; 
             font-weight: 900;
             text-transform: uppercase;
         }
@@ -55,12 +55,13 @@
             cursor: pointer; margin-top: 10px; text-transform: uppercase;
             letter-spacing: 2px;
         }
+        button:active { transform: scale(0.98); opacity: 0.9; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         td { padding: 15px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.95rem; }
         .erik { color: #4cd9ff; font-weight: bold; }
         .nadine { color: #ff85c1; font-weight: bold; }
         .status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; }
-        h2 { text-align: center; margin-top: 0; letter-spacing: 6px; font-weight: 900; }
+        h2 { text-align: center; margin-top: 0; letter-spacing: 6px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .del-btn { color: #ff3b30; background: none; border: 1px solid rgba(255,59,48,0.4); cursor: pointer; border-radius: 50%; width: 28px; height: 28px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
         #totalCost { text-align: center; margin-top: 20px; font-weight: bold; color: #888; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
     </style>
@@ -72,14 +73,14 @@
     <div id="status" class="status">Connecting...</div>
     
     <div class="card">
-        <div id="balanceText" class="balance">...</div>
+        <div id="balanceText" class="balance">Ready</div>
     </div>
 
     <div class="card">
         <label>Date</label>
         <input type="date" id="date">
         <label>Description</label>
-        <input type="text" id="desc" placeholder="What was it?">
+        <input type="text" id="desc" placeholder="Expense description">
         <label>Amount ($)</label>
         <input type="number" id="amount" placeholder="0.00" inputmode="decimal">
         <label>Who Paid?</label>
@@ -88,96 +89,3 @@
             <option value="Nadine">Nadine</option>
         </select>
         <button onclick="addExpense()">Add Expense</button>
-    </div>
-
-    <div class="card">
-        <table><tbody id="list"></tbody></table>
-        <div id="totalCost"></div>
-        <center>
-            <button onclick="load()" style="background:none; border:none; color:rgba(255,255,255,0.3); text-decoration:underline; font-size: 10px; cursor:pointer; margin-top:15px;">REFRESH CLOUD</button>
-        </center>
-    </div>
-</div>
-
-<script>
-    const BIN_ID = '69b88720aa77b81da9ee9c67'; 
-    const API_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
-    let expenses = [];
-
-    async function load() {
-        const s = document.getElementById('status');
-        s.innerText = "Syncing...";
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': API_KEY }
-            });
-            const data = await res.json();
-            expenses = data.record || [];
-            render();
-            s.innerText = "Cloud Synced ✅";
-        } catch (e) { s.innerText = "Offline Mode ⚠️"; }
-    }
-
-    async function save() {
-        document.getElementById('status').innerText = "Saving...";
-        try {
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-                body: JSON.stringify(expenses)
-            });
-            document.getElementById('status').innerText = "All Changes Saved ✅";
-        } catch (e) { document.getElementById('status').innerText = "Save Error ❌"; }
-    }
-
-    function addExpense() {
-        const date = document.getElementById('date').value;
-        const desc = document.getElementById('desc').value;
-        const amount = parseFloat(document.getElementById('amount').value);
-        const payer = document.getElementById('payer').value;
-        if (!date || !desc || isNaN(amount)) return alert("Please fill all fields");
-        expenses.push({ id: Date.now(), date, desc, amount, payer });
-        render();
-        save();
-        document.getElementById('desc').value = '';
-        document.getElementById('amount').value = '';
-    }
-
-    function deleteLine(id) {
-        if(confirm("Delete this entry?")) {
-            expenses = expenses.filter(e => e.id !== id);
-            render();
-            save();
-        }
-    }
-
-    function render() {
-        const list = document.getElementById('list');
-        list.innerHTML = '';
-        let eT = 0, nT = 0;
-        expenses.sort((a,b) => b.id - a.id).forEach(e => {
-            if (e.payer === 'Erik') eT += e.amount; else nT += e.amount;
-            const d = e.date.split('-').reverse().slice(0,2).join('/');
-            list.innerHTML += `<tr>
-                <td style="color:#888; font-size: 0.8rem;">${d}</td>
-                <td><strong>${e.desc}</strong></td>
-                <td>$${e.amount.toFixed(2)}</td>
-                <td class="${e.payer.toLowerCase()}">${e.payer}</td>
-                <td style="text-align:right;"><button class="del-btn" onclick="deleteLine(${e.id})">✕</button></td>
-            </tr>`;
-        });
-        const total = eT + nT;
-        const diff = eT - (total/2);
-        document.getElementById('totalCost').innerText = "TRIP TOTAL: $" + total.toFixed(2);
-        const bal = document.getElementById('balanceText');
-        if (expenses.length === 0) bal.innerText = "Ready for takeoff";
-        else if (diff > 0) bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
-        else if (diff < 0) bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
-        else bal.innerText = "All Even! 🇳🇿";
-    }
-
-    document.getElementById('date').valueAsDate = new Date();
-    load();
-</script>
-</body>
-</html>
