@@ -1,112 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NZ Trip Sync</title>
     <style>
-        * { box-sizing: border-box; }
         body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            /* High-reliability image of NZ Landscape */
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1507699622108-4be3a4d5b945?q=80&w=2000&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-color: #000;
-            color: white; 
-            margin: 0; padding: 20px; 
-            display: flex; justify-content: center;
-            min-height: 100vh;
+            font-family: sans-serif; 
+            background: #1a1a1a url('https://images.unsplash.com/photo-1469521669194-bdf95559c13d?w=1000') no-repeat center center fixed; 
+            background-size: cover; 
+            color: white; margin: 0; padding: 20px; display: flex; justify-content: center; 
         }
-        .container { width: 100%; max-width: 450px; }
-        .card { 
-            background: rgba(0, 0, 0, 0.75); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            padding: 20px; 
-            border-radius: 20px; 
-            margin-bottom: 20px; 
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .balance-box { 
-            background: #ffffff; 
-            color: #000000; 
-            padding: 20px; 
-            border-radius: 15px; 
-            text-align: center; 
-            font-size: 1.4rem; 
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
-        input, select { 
-            width: 100%; padding: 14px; margin: 5px 0 10px 0; border-radius: 10px; 
-            border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); 
-            color: white; font-size: 16px; outline: none;
-        }
-        .add-btn { 
-            width: 100%; padding: 16px; background: #007aff; border: none; 
-            color: white; border-radius: 12px; font-weight: bold; 
-            cursor: pointer; margin-top: 10px; text-transform: uppercase;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 15px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; }
-        .name-erik { color: #00d4ff; font-weight: bold; }
-        .name-nadine { color: #ff6ec7; font-weight: bold; }
-        .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
-        .sync-status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 15px; font-weight: 600; text-transform: uppercase; }
-        h2 { text-align: center; margin-top: 0; letter-spacing: 5px; font-weight: 900; }
+        .container { width: 100%; max-width: 400px; }
+        .card { background: rgba(0,0,0,0.8); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #444; }
+        .balance { background: white; color: black; padding: 20px; border-radius: 10px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #666; background: #222; color: white; font-size: 16px; }
+        button { width: 100%; padding: 15px; background: #007aff; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        td { padding: 10px 5px; border-bottom: 1px solid #333; font-size: 0.9rem; }
+        .erik { color: #4cd9ff; } .nadine { color: #ff85c1; }
+        .status { text-align: center; font-size: 12px; margin-bottom: 10px; color: #aaa; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>AIR NZ TRIP</h2>
-    <div class="sync-status" id="status">Connecting...</div>
+    <h2 style="text-align:center;">🇳🇿 NZ TRIP SYNC</h2>
+    <div id="status" class="status">Connecting...</div>
     
     <div class="card">
-        <div class="balance-box" id="balanceText">Loading...</div>
+        <div id="balanceText" class="balance">Loading...</div>
     </div>
 
     <div class="card">
-        <label>Date</label>
         <input type="date" id="date">
-        <label>Description</label>
-        <input type="text" id="desc" placeholder="Coffee, Dinner, etc.">
-        <label>Amount ($)</label>
-        <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
-        <label>Who paid?</label>
+        <input type="text" id="desc" placeholder="What was it?">
+        <input type="number" id="amount" placeholder="0.00" inputmode="decimal">
         <select id="payer">
             <option value="Erik">Erik</option>
             <option value="Nadine">Nadine</option>
         </select>
-        <button class="add-btn" onclick="addExpense()">Add Expense</button>
+        <button onclick="addExpense()">Add Expense</button>
     </div>
 
     <div class="card">
         <table><tbody id="list"></tbody></table>
-        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.1rem; color: #aaa;"></p>
-        <center>
-            <button onclick="loadFromCloud()" style="background:none; border:none; color:rgba(255,255,255,0.4); text-decoration:underline; font-size: 11px; cursor:pointer;">
-                MANUAL REFRESH
-            </button>
-        </center>
     </div>
 </div>
 
 <script>
-    // These are your actual keys - do not change
     const BIN_ID = '69b88720aa77b81da9ee9c67'; 
     const API_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
-
     let expenses = [];
 
-    async function loadFromCloud() {
-        const statusEl = document.getElementById('status');
-        statusEl.innerText = "Syncing...";
+    async function load() {
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
@@ -114,29 +61,20 @@
             const data = await res.json();
             expenses = data.record || [];
             render();
-            statusEl.innerText = "Cloud Synced ✅";
-        } catch (e) {
-            statusEl.innerText = "Offline Mode ⚠️";
-            console.error(e);
-        }
+            document.getElementById('status').innerText = "Cloud Synced ✅";
+        } catch (e) { document.getElementById('status').innerText = "Error Loading ❌"; }
     }
 
-    async function saveToCloud() {
-        const statusEl = document.getElementById('status');
-        statusEl.innerText = "Saving...";
+    async function save() {
+        document.getElementById('status').innerText = "Saving...";
         try {
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
-                headers: { 
-                    'Content-Type': 'application/json', 
-                    'X-Master-Key': API_KEY 
-                },
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
                 body: JSON.stringify(expenses)
             });
-            statusEl.innerText = "All Changes Saved ✅";
-        } catch (e) {
-            statusEl.innerText = "Save Failed ❌";
-        }
+            document.getElementById('status').innerText = "Saved ✅";
+        } catch (e) { document.getElementById('status').innerText = "Save Error ❌"; }
     }
 
     function addExpense() {
@@ -144,58 +82,37 @@
         const desc = document.getElementById('desc').value;
         const amount = parseFloat(document.getElementById('amount').value);
         const payer = document.getElementById('payer').value;
-
-        if (!date || !desc || isNaN(amount)) return alert("Please fill everything in!");
-
+        if (!date || !desc || isNaN(amount)) return alert("Fill everything!");
         expenses.push({ id: Date.now(), date, desc, amount, payer });
         render();
-        saveToCloud();
-        
+        save();
         document.getElementById('desc').value = '';
         document.getElementById('amount').value = '';
-    }
-
-    function deleteLine(id) {
-        if(confirm("Delete this entry?")) {
-            expenses = expenses.filter(e => e.id !== id);
-            render();
-            saveToCloud();
-        }
     }
 
     function render() {
         const list = document.getElementById('list');
         list.innerHTML = '';
         let eT = 0, nT = 0;
-        
-        expenses.sort((a,b) => b.id - a.id);
-        
-        expenses.forEach(e => {
+        expenses.sort((a,b) => b.id - a.id).forEach(e => {
             if (e.payer === 'Erik') eT += e.amount; else nT += e.amount;
-            const d = e.date.split('-').reverse().slice(0,2).join('/');
-            
             list.innerHTML += `<tr>
-                <td style="color:#888;">${d}</td>
-                <td style="font-weight:600;">${e.desc}</td>
-                <td style="font-weight:900;">$${e.amount.toFixed(2)}</td>
-                <td class="${e.payer === 'Erik' ? 'name-erik' : 'name-nadine'}">${e.payer}</td>
-                <td style="text-align:right;"><button class="del-btn" onclick="deleteLine(${e.id})">✕</button></td>
+                <td>${e.desc}</td>
+                <td>$${e.amount.toFixed(2)}</td>
+                <td class="${e.payer.toLowerCase()}">${e.payer}</td>
             </tr>`;
         });
-        
         const total = eT + nT;
         const diff = eT - (total/2);
-        document.getElementById('totalCost').innerText = "Trip Total: $" + total.toFixed(2);
-        
         const bal = document.getElementById('balanceText');
-        if (expenses.length === 0) bal.innerText = "No entries yet";
+        if (expenses.length === 0) bal.innerText = "Welcome!";
         else if (diff > 0) bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
         else if (diff < 0) bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
-        else bal.innerText = "All even! 🇳🇿";
+        else bal.innerText = "All Even!";
     }
 
     document.getElementById('date').valueAsDate = new Date();
-    loadFromCloud();
+    load();
 </script>
 </body>
 </html>
