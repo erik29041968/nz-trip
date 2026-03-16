@@ -8,20 +8,20 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=15');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=20');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
         .container { width: 100%; max-width: 420px; }
         .header { text-align: center; padding: 10px 0; color: white; }
-        .header h2 { margin: 0; letter-spacing: 3px; font-weight: 900; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .status { text-align: center; font-size: 11px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; opacity: 0.8; }
+        .header h2 { margin: 0; letter-spacing: 3px; font-weight: 900; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        .status { text-align: center; font-size: 11px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; }
         
         .card { background: #ffffff; padding: 20px; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: #333; }
         .balance-box { background: #f8f9fa; color: #000; padding: 20px; border-radius: 12px; text-align: center; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; border: 1px solid #eee; }
         
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
-        input, select { width: 100%; padding: 14px; margin: 6px 0 12px 0; border-radius: 10px; border: 1px solid #ccc; background: #fff; color: #000; font-size: 16px; outline: none; -webkit-appearance: none; }
+        input, select { width: 100%; padding: 14px; margin: 6px 0 12px 0; border-radius: 10px; border: 1px solid #ccc; background: #fff; color: #000; font-size: 16px; outline: none; }
         
         .btn { width: 100%; padding: 18px; background: #000; border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
         
@@ -37,9 +37,9 @@
 <body>
 
 <div class="container">
-    <div class="header"><h2><span>🇳🇿</span> AIR NZ TRIP</h2></div>
+    <div class="header"><h2>🇳🇿 AIR NZ TRIP</h2></div>
     <div id="syncStatus" class="status">Connecting...</div>
-    <div class="card"><div id="balDisplay" class="balance-box">LOADING...</div></div>
+    <div class="card"><div id="balDisplay" class="balance-box">SYNCING...</div></div>
 
     <div class="card">
         <label>Date</label><input type="date" id="inDate">
@@ -53,7 +53,9 @@
     <div class="card">
         <table><tbody id="listBody"></tbody></table>
         <div id="totalVal"></div>
-        <center><button onclick="fetchData()" style="background:none; border:none; color:#999; text-decoration:underline; font-size: 10px; cursor:pointer; margin-top:20px;">FORCE REFRESH</button></center>
+        <center>
+            <button onclick="fetchData()" style="background:#f0f0f0; border:1px solid #ccc; color:#333; padding: 10px 20px; border-radius: 8px; font-size: 10px; cursor:pointer; margin-top:20px; font-weight: bold;">RE-SYNC CLOUD</button>
+        </center>
     </div>
 </div>
 
@@ -67,25 +69,27 @@
         const b = document.getElementById('balDisplay');
         s.innerText = "Syncing...";
         try {
-            // Added a cache-buster to the URL to force the cloud to provide fresh data
-            const r = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest?nocache=${Date.now()}`, {
+            // Added ?meta=false to the URL to reduce data size and prevent security flags
+            const r = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest?meta=false`, {
                 method: 'GET',
                 headers: { 
-                    'X-Master-Key': A_KEY,
-                    'X-Access-Key': A_KEY // Added redundant key for legacy support
+                    'X-Master-Key': A_KEY
                 }
             });
             
-            if (!r.ok) throw new Error();
+            if (!r.ok) throw new Error('CORS or Auth Error');
             
             const res = await r.json();
-            dataList = res.record || [];
+            
+            // JSONBin sometimes returns the array directly when meta=false is used
+            dataList = Array.isArray(res) ? res : (res.record || []);
 
             updateUI();
             s.innerText = "Cloud Synced ✅";
         } catch (e) { 
-            s.innerText = "Sync Error ❌"; 
-            if (dataList.length === 0) b.innerText = "Check Connection";
+            console.error(e);
+            s.innerText = "Offline Mode ❌"; 
+            if (dataList.length === 0) b.innerText = "CONNECTION ERROR";
         }
     }
 
