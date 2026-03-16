@@ -8,13 +8,13 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            /* New Zealand Mountain Landscape - High Reliability Link */
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
-                        url('https://images.unsplash.com/photo-1469521669194-bdf95559c13d?auto=format&fit=crop&q=80&w=1000');
+            /* High-reliability image of NZ Landscape */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1507699622108-4be3a4d5b945?q=80&w=2000&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            background-color: #1a1a1a;
+            background-color: #000;
             color: white; 
             margin: 0; padding: 20px; 
             display: flex; justify-content: center;
@@ -22,9 +22,9 @@
         }
         .container { width: 100%; max-width: 450px; }
         .card { 
-            background: rgba(0, 0, 0, 0.7); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(0, 0, 0, 0.75); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             padding: 20px; 
             border-radius: 20px; 
             margin-bottom: 20px; 
@@ -39,6 +39,7 @@
             text-align: center; 
             font-size: 1.4rem; 
             font-weight: 900;
+            text-transform: uppercase;
         }
         label { display: block; margin-top: 10px; font-size: 0.7rem; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
         input, select { 
@@ -63,8 +64,8 @@
 <body>
 
 <div class="container">
-    <h2>🇳🇿 NZ TRIP</h2>
-    <div class="sync-status" id="status">Syncing...</div>
+    <h2>AIR NZ TRIP</h2>
+    <div class="sync-status" id="status">Connecting...</div>
     
     <div class="card">
         <div class="balance-box" id="balanceText">Loading...</div>
@@ -74,7 +75,7 @@
         <label>Date</label>
         <input type="date" id="date">
         <label>Description</label>
-        <input type="text" id="desc" placeholder="Coffee, Fuel, etc.">
+        <input type="text" id="desc" placeholder="Coffee, Dinner, etc.">
         <label>Amount ($)</label>
         <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
         <label>Who paid?</label>
@@ -97,6 +98,7 @@
 </div>
 
 <script>
+    // These are your actual keys - do not change
     const BIN_ID = '69b88720aa77b81da9ee9c67'; 
     const API_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
 
@@ -104,7 +106,7 @@
 
     async function loadFromCloud() {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = "Syncing with Cloud...";
+        statusEl.innerText = "Syncing...";
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
@@ -115,16 +117,20 @@
             statusEl.innerText = "Cloud Synced ✅";
         } catch (e) {
             statusEl.innerText = "Offline Mode ⚠️";
+            console.error(e);
         }
     }
 
     async function saveToCloud() {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = "Saving to Cloud...";
+        statusEl.innerText = "Saving...";
         try {
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-Master-Key': API_KEY 
+                },
                 body: JSON.stringify(expenses)
             });
             statusEl.innerText = "All Changes Saved ✅";
@@ -138,10 +144,13 @@
         const desc = document.getElementById('desc').value;
         const amount = parseFloat(document.getElementById('amount').value);
         const payer = document.getElementById('payer').value;
-        if (!date || !desc || isNaN(amount)) return alert("Please fill in all fields");
+
+        if (!date || !desc || isNaN(amount)) return alert("Please fill everything in!");
+
         expenses.push({ id: Date.now(), date, desc, amount, payer });
         render();
         saveToCloud();
+        
         document.getElementById('desc').value = '';
         document.getElementById('amount').value = '';
     }
@@ -158,14 +167,37 @@
         const list = document.getElementById('list');
         list.innerHTML = '';
         let eT = 0, nT = 0;
+        
         expenses.sort((a,b) => b.id - a.id);
+        
         expenses.forEach(e => {
             if (e.payer === 'Erik') eT += e.amount; else nT += e.amount;
             const d = e.date.split('-').reverse().slice(0,2).join('/');
+            
             list.innerHTML += `<tr>
                 <td style="color:#888;">${d}</td>
                 <td style="font-weight:600;">${e.desc}</td>
                 <td style="font-weight:900;">$${e.amount.toFixed(2)}</td>
-                <td class="${e.payer === 'Erik
+                <td class="${e.payer === 'Erik' ? 'name-erik' : 'name-nadine'}">${e.payer}</td>
+                <td style="text-align:right;"><button class="del-btn" onclick="deleteLine(${e.id})">✕</button></td>
+            </tr>`;
+        });
+        
+        const total = eT + nT;
+        const diff = eT - (total/2);
+        document.getElementById('totalCost').innerText = "Trip Total: $" + total.toFixed(2);
+        
+        const bal = document.getElementById('balanceText');
+        if (expenses.length === 0) bal.innerText = "No entries yet";
+        else if (diff > 0) bal.innerText = "Nadine owes Erik: $" + diff.toFixed(2);
+        else if (diff < 0) bal.innerText = "Erik owes Nadine: $" + Math.abs(diff).toFixed(2);
+        else bal.innerText = "All even! 🇳🇿";
+    }
+
+    document.getElementById('date').valueAsDate = new Date();
+    loadFromCloud();
+</script>
+</body>
+</html>
             
        
