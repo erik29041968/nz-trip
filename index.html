@@ -8,9 +8,9 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            /* This looks for the image you upload to your GitHub folder */
+            /* Match your exact filename: Background.jpg */
             background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), 
-                        url('background.jpg');
+                        url('Background.jpg');
             background-size: cover;
             background-position: center center;
             background-attachment: fixed;
@@ -42,27 +42,26 @@
             font-size: 1.4rem; 
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 1.5px; }
         input, select { 
             width: 100%; padding: 15px; margin: 6px 0 12px 0; border-radius: 12px; 
             border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.08); 
-            color: white; font-size: 16px; outline: none; -webkit-appearance: none;
+            color: white; font-size: 16px; outline: none;
         }
         button { 
             width: 100%; padding: 18px; background: #007aff; border: none; 
             color: white; border-radius: 14px; font-weight: bold; 
             cursor: pointer; margin-top: 10px; text-transform: uppercase;
-            letter-spacing: 2px; font-size: 0.9rem;
+            letter-spacing: 2px;
         }
         button:active { opacity: 0.8; transform: scale(0.97); }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         td { padding: 18px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.95rem; }
         .erik { color: #4cd9ff; font-weight: bold; }
         .nadine { color: #ff85c1; font-weight: bold; }
-        .status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        h2 { text-align: center; margin-top: 0; letter-spacing: 6px; font-weight: 900; font-size: 1.2rem; }
+        .status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; }
+        h2 { text-align: center; margin-top: 0; letter-spacing: 6px; font-weight: 900; }
         .del-btn { color: #ff3b30; background: none; border: 1px solid rgba(255,59,48,0.4); cursor: pointer; border-radius: 50%; width: 28px; height: 28px; font-size: 11px; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
@@ -70,10 +69,10 @@
 
 <div class="container">
     <h2>AIR NZ TRIP</h2>
-    <div id="status" class="status">Initializing...</div>
+    <div id="status" class="status">Connecting...</div>
     
     <div class="card">
-        <div id="balanceText" class="balance">Connecting...</div>
+        <div id="balanceText" class="balance">...</div>
     </div>
 
     <div class="card">
@@ -112,10 +111,7 @@
             expenses = data.record || [];
             render();
             s.innerText = "Cloud Synced ✅";
-        } catch (e) { 
-            s.innerText = "Offline Mode ⚠️"; 
-            console.error(e);
-        }
+        } catch (e) { s.innerText = "Offline Mode ⚠️"; }
     }
 
     async function save() {
