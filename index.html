@@ -8,8 +8,8 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), 
-                        url('./background.jpeg?v=3');
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), 
+                        url('./background.jpeg?v=4');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -18,55 +18,35 @@
             display: flex; justify-content: center;
             min-height: 100vh;
         }
-        .container { width: 100%; max-width: 420px; position: relative; }
+        .container { width: 100%; max-width: 420px; }
         
-        /* The Kiwi Icon Background */
-        .header-box {
-            position: relative;
-            text-align: center;
-            padding: 20px 0;
-            margin-bottom: 5px;
-        }
-        .kiwi-icon {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px; opacity: 0.2;
-            z-index: 0;
-        }
-
-        h2 { 
-            position: relative; 
-            z-index: 1; 
-            margin: 0; 
-            letter-spacing: 4px; 
-            font-weight: 900; 
-            color: #fff; 
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5); 
-        }
+        .header-box { text-align: center; padding: 10px 0 20px 0; }
+        .kiwi-label { font-size: 3rem; display: block; margin-bottom: -10px; opacity: 0.9; }
+        h2 { margin: 0; letter-spacing: 3px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); text-transform: uppercase; }
 
         .card { 
             background: #ffffff; 
             padding: 20px; 
             border-radius: 18px; 
             margin-bottom: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             color: #333;
         }
         .balance { 
-            background: #f4f4f4; 
+            background: #f8f9fa; 
             color: #000; 
-            padding: 20px; 
+            padding: 22px; 
             border-radius: 12px; 
             text-align: center; 
             font-size: 1.3rem; 
             font-weight: 900;
             text-transform: uppercase;
+            border: 1px solid #eee;
         }
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         input, select { 
             width: 100%; padding: 14px; margin: 6px 0 12px 0; border-radius: 10px; 
-            border: 1px solid #ddd; background: #fff; color: #000; font-size: 16px; outline: none;
+            border: 1px solid #ccc; background: #fff; color: #000; font-size: 16px; outline: none;
         }
         .add-btn { 
             width: 100%; padding: 18px; background: #000; border: none; 
@@ -74,6 +54,42 @@
             cursor: pointer; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px;
         }
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 15px 5px; border-bottom: 1px solid #eee; font-size: 0.95rem; color: #333; }
+        td { padding: 15px 5px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
         .erik { color: #007aff; font-weight: bold; }
-        .nadine { color:
+        .nadine { color: #ff2d55; font-weight: bold; }
+        .status { text-align: center; font-size: 11px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
+        #totalCost { text-align: center; margin-top: 20px; font-weight: bold; color: #888; border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-box">
+        <span class="kiwi-label">🥝</span>
+        <h2>AIR NZ TRIP</h2>
+    </div>
+
+    <div id="status" class="status">Connecting...</div>
+    
+    <div class="card">
+        <div id="balanceText" class="balance">...</div>
+    </div>
+
+    <div class="card">
+        <label>Date</label>
+        <input type="date" id="date">
+        <label>Description</label>
+        <input type="text" id="desc" placeholder="What did we buy?">
+        <label>Amount ($)</label>
+        <input type="number" id="amount" placeholder="0.00" inputmode="decimal">
+        <label>Who Paid?</label>
+        <select id="payer">
+            <option value="Erik">Erik</option>
+            <option value="Nadine">Nadine</option>
+        </select>
+        <button class="add-btn" onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <div class="card">
+        <table><tbody id="list
