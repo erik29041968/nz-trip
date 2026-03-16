@@ -19,11 +19,10 @@
             min-height: 100vh;
         }
         .container { width: 100%; max-width: 420px; }
-        .header { text-align: center; padding: 20px 0; color: white; }
-        .header h2 { margin: 0; letter-spacing: 4px; font-weight: 900; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .status { text-align: center; font-size: 11px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; }
+        .header { text-align: center; padding: 10px 0 20px 0; color: white; }
+        .header h2 { margin: 0; letter-spacing: 3px; font-weight: 900; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        .status { text-align: center; font-size: 11px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
         
-        /* Solid White Cards */
         .card { 
             background: #ffffff; 
             padding: 20px; 
@@ -35,13 +34,14 @@
         .balance-box { 
             background: #f8f9fa; 
             color: #000; 
-            padding: 20px; 
+            padding: 22px; 
             border-radius: 12px; 
             text-align: center; 
-            font-size: 1.3rem; 
+            font-size: 1.25rem; 
             font-weight: 900;
             text-transform: uppercase;
             border: 1px solid #eee;
+            line-height: 1.4;
         }
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         input, select { 
@@ -57,8 +57,8 @@
         td { padding: 15px 5px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
         .erik { color: #007aff; font-weight: bold; }
         .nadine { color: #ff2d55; font-weight: bold; }
-        .del { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
-        #totalVal { text-align: center; margin-top: 20px; font-weight: bold; color: #888; border-top: 1px solid #eee; padding-top: 15px; }
+        .del { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+        #totalVal { text-align: center; margin-top: 20px; font-weight: bold; color: #888; border-top: 1px solid #eee; padding-top: 15px; text-transform: uppercase; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -71,14 +71,14 @@
     <div id="syncStatus" class="status">Connecting...</div>
     
     <div class="card">
-        <div id="balDisplay" class="balance-box">Loading...</div>
+        <div id="balDisplay" class="balance-box">SYNCING...</div>
     </div>
 
     <div class="card">
         <label>Date</label>
         <input type="date" id="inDate">
         <label>Description</label>
-        <input type="text" id="inDesc" placeholder="Flight, Dinner, Coffee...">
+        <input type="text" id="inDesc" placeholder="Dinner, Coffee, Fuel...">
         <label>Amount ($)</label>
         <input type="number" id="inAmt" placeholder="0.00" inputmode="decimal">
         <label>Who Paid?</label>
@@ -100,4 +100,4 @@
 
 <script>
     const B_ID = '69b88720aa77b81da9ee9c67'; 
-    const A_KEY = '$2a$10$RfeNG6fuZHWzfHxMy
+    const A_KEY = '$2a$10$RfeNG
