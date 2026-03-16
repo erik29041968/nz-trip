@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('./background.jpeg?v=11');
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('./background.jpeg?v=12');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -58,42 +58,37 @@
 </div>
 
 <script>
-    // These IDs must match your JSONBin Dashboard exactly
     const B_ID = '69b88720aa77b81da9ee9c67'; 
     const A_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
     let dataList = [];
 
     async function fetchData() {
         const s = document.getElementById('syncStatus');
+        const bDisplay = document.getElementById('balDisplay');
         s.innerText = "Syncing...";
         try {
             const r = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest`, {
-                method: 'GET',
                 headers: { 
                     'X-Master-Key': A_KEY,
-                    'X-Bin-Meta': false // This ensures we get just the data, no fluff
+                    'X-Bin-Meta': false,
+                    'Content-Type': 'application/json'
                 }
             });
             
-            if (!r.ok) throw new Error('Network response was not ok');
+            if (!r.ok) throw new Error();
             
             const res = await r.json();
             
-            // Critical Fix: JSONBin sometimes wraps data in .record, sometimes not.
-            if (res && res.record) {
-                dataList = res.record;
-            } else if (Array.isArray(res)) {
-                dataList = res;
-            } else {
-                dataList = [];
-            }
+            // Repair logic: handles record wrapper or raw array
+            if (res && res.record) dataList = res.record;
+            else if (Array.isArray(res)) dataList = res;
+            else dataList = [];
 
             updateUI();
             s.innerText = "Cloud Synced ✅";
         } catch (e) { 
-            console.error("Fetch error:", e);
-            s.innerText = "Connection Error ❌"; 
-            document.getElementById('balDisplay').innerText = "Offline Mode";
+            s.innerText = "Sync Error ❌"; 
+            bDisplay.innerText = "Check Connection";
         }
     }
 
@@ -157,9 +152,9 @@
         if (dataList.length === 0) {
             bal.innerText = "Ready for Takeoff";
         } else if (diff > 0) {
-            bal.innerHTML = `<span style="font-size:0.7rem;color:#666;font-weight:normal;">Nadine owes Erik</span><br>$${diff.toFixed(2)}`;
+            bal.innerHTML = `<span style="font-size:0.75rem;color:#666;font-weight:normal;">Nadine owes Erik</span><br>$${diff.toFixed(2)}`;
         } else if (diff < 0) {
-            bal.innerHTML = `<span style="font-size:0.7rem;color:#666;font-weight:normal;">Erik owes Nadine</span><br>$${Math.abs(diff).toFixed(2)}`;
+            bal.innerHTML = `<span style="font-size:0.75rem;color:#666;font-weight:normal;">Erik owes Nadine</span><br>$${Math.abs(diff).toFixed(2)}`;
         } else {
             bal.innerText = "All Even! 🇳🇿";
         }
