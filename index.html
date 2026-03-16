@@ -8,9 +8,13 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
-            /* Solid New Zealand Deep Blue & Slate Gradient - Guaranteed to load */
-            background: linear-gradient(135deg, #001f3f 0%, #000000 100%);
+            /* New Zealand Mountain Landscape - High Reliability Link */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                        url('https://images.unsplash.com/photo-1469521669194-bdf95559c13d?auto=format&fit=crop&q=80&w=1000');
+            background-size: cover;
+            background-position: center;
             background-attachment: fixed;
+            background-color: #1a1a1a;
             color: white; 
             margin: 0; padding: 20px; 
             display: flex; justify-content: center;
@@ -18,65 +22,59 @@
         }
         .container { width: 100%; max-width: 450px; }
         .card { 
-            background: rgba(255, 255, 255, 0.08); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.7); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 20px; 
             border-radius: 20px; 
             margin-bottom: 20px; 
             border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .balance-box { 
             background: #ffffff; 
             color: #000000; 
-            padding: 22px; 
+            padding: 20px; 
             border-radius: 15px; 
             text-align: center; 
             font-size: 1.4rem; 
             font-weight: 900;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        label { display: block; margin-top: 12px; font-size: 0.75rem; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
+        label { display: block; margin-top: 10px; font-size: 0.7rem; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
         input, select { 
-            width: 100%; padding: 14px; margin: 5px 0 10px 0; border-radius: 12px; 
-            border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.3); 
-            color: white; font-size: 16px; outline: none; -webkit-appearance: none;
+            width: 100%; padding: 14px; margin: 5px 0 10px 0; border-radius: 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); 
+            color: white; font-size: 16px; outline: none;
         }
         .add-btn { 
-            width: 100%; padding: 18px; background: #007aff; border: none; 
+            width: 100%; padding: 16px; background: #007aff; border: none; 
             color: white; border-radius: 12px; font-weight: bold; 
-            cursor: pointer; margin-top: 15px; text-transform: uppercase;
-            letter-spacing: 1px; font-size: 1rem;
+            cursor: pointer; margin-top: 10px; text-transform: uppercase;
         }
-        .add-btn:active { transform: scale(0.98); opacity: 0.9; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
         td { padding: 15px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; }
-        
-        .name-erik { color: #4cd9ff; font-weight: bold; }
-        .name-nadine { color: #ff85c1; font-weight: bold; }
-        
-        .del-btn { color: #ff3b30; background: rgba(255,59,48,0.1); border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 28px; height: 28px; font-size: 12px; }
-        .sync-status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 15px; font-weight: 600; text-transform: uppercase; }
-        h2 { text-align: center; margin-top: 0; letter-spacing: 4px; font-weight: 900; color: #fff; }
+        .name-erik { color: #00d4ff; font-weight: bold; }
+        .name-nadine { color: #ff6ec7; font-weight: bold; }
+        .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; cursor: pointer; border-radius: 50%; width: 26px; height: 26px; font-size: 10px; }
+        .sync-status { text-align: center; font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 15px; font-weight: 600; text-transform: uppercase; }
+        h2 { text-align: center; margin-top: 0; letter-spacing: 5px; font-weight: 900; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>🇳🇿 NZ TRIP</h2>
-    <div class="sync-status" id="status">Connecting...</div>
+    <div class="sync-status" id="status">Syncing...</div>
     
     <div class="card">
-        <div class="balance-box" id="balanceText">Ready</div>
+        <div class="balance-box" id="balanceText">Loading...</div>
     </div>
 
     <div class="card">
         <label>Date</label>
         <input type="date" id="date">
         <label>Description</label>
-        <input type="text" id="desc" placeholder="What did you buy?">
+        <input type="text" id="desc" placeholder="Coffee, Fuel, etc.">
         <label>Amount ($)</label>
         <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
         <label>Who paid?</label>
@@ -89,10 +87,10 @@
 
     <div class="card">
         <table><tbody id="list"></tbody></table>
-        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.1rem; color: #ccc;"></p>
+        <p id="totalCost" style="text-align:center; font-weight:bold; margin-top:20px; font-size: 1.1rem; color: #aaa;"></p>
         <center>
-            <button onclick="loadFromCloud()" style="background:none; border:none; color:rgba(255,255,255,0.4); text-decoration:underline; font-size: 12px; cursor:pointer; padding: 10px;">
-                🔄 Refresh Cloud Data
+            <button onclick="loadFromCloud()" style="background:none; border:none; color:rgba(255,255,255,0.4); text-decoration:underline; font-size: 11px; cursor:pointer;">
+                MANUAL REFRESH
             </button>
         </center>
     </div>
@@ -106,7 +104,7 @@
 
     async function loadFromCloud() {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = "Syncing...";
+        statusEl.innerText = "Syncing with Cloud...";
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
@@ -116,44 +114,40 @@
             render();
             statusEl.innerText = "Cloud Synced ✅";
         } catch (e) {
-            statusEl.innerText = "Sync Error ❌";
+            statusEl.innerText = "Offline Mode ⚠️";
         }
     }
 
     async function saveToCloud() {
         const statusEl = document.getElementById('status');
-        statusEl.innerText = "Saving...";
+        statusEl.innerText = "Saving to Cloud...";
         try {
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
                 body: JSON.stringify(expenses)
             });
-            statusEl.innerText = "Saved to Cloud ✅";
+            statusEl.innerText = "All Changes Saved ✅";
         } catch (e) {
-            statusEl.innerText = "Cloud Error ❌";
+            statusEl.innerText = "Save Failed ❌";
         }
     }
 
     function addExpense() {
         const date = document.getElementById('date').value;
         const desc = document.getElementById('desc').value;
-        const amountValue = document.getElementById('amount').value;
-        const amount = parseFloat(amountValue);
+        const amount = parseFloat(document.getElementById('amount').value);
         const payer = document.getElementById('payer').value;
-
-        if (!date || !desc || isNaN(amount)) return alert("Please enter all details!");
-
+        if (!date || !desc || isNaN(amount)) return alert("Please fill in all fields");
         expenses.push({ id: Date.now(), date, desc, amount, payer });
         render();
         saveToCloud();
-        
         document.getElementById('desc').value = '';
         document.getElementById('amount').value = '';
     }
 
     function deleteLine(id) {
-        if(confirm("Remove this expense?")) {
+        if(confirm("Delete this entry?")) {
             expenses = expenses.filter(e => e.id !== id);
             render();
             saveToCloud();
@@ -164,12 +158,14 @@
         const list = document.getElementById('list');
         list.innerHTML = '';
         let eT = 0, nT = 0;
-        
-        // Sort newest entries to the top
         expenses.sort((a,b) => b.id - a.id);
-        
         expenses.forEach(e => {
             if (e.payer === 'Erik') eT += e.amount; else nT += e.amount;
             const d = e.date.split('-').reverse().slice(0,2).join('/');
-            
             list.innerHTML += `<tr>
+                <td style="color:#888;">${d}</td>
+                <td style="font-weight:600;">${e.desc}</td>
+                <td style="font-weight:900;">$${e.amount.toFixed(2)}</td>
+                <td class="${e.payer === 'Erik
+            
+       
