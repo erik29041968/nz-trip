@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('./background.jpeg?v=10');
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('./background.jpeg?v=11');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -58,6 +58,7 @@
 </div>
 
 <script>
+    // These IDs must match your JSONBin Dashboard exactly
     const B_ID = '69b88720aa77b81da9ee9c67'; 
     const A_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
     let dataList = [];
@@ -66,59 +67,102 @@
         const s = document.getElementById('syncStatus');
         s.innerText = "Syncing...";
         try {
-            const r = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest?t=${Date.now()}`, {
-                headers: { 'X-Master-Key': A_KEY, 'X-Bin-Meta': false }
+            const r = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest`, {
+                method: 'GET',
+                headers: { 
+                    'X-Master-Key': A_KEY,
+                    'X-Bin-Meta': false // This ensures we get just the data, no fluff
+                }
             });
+            
+            if (!r.ok) throw new Error('Network response was not ok');
+            
             const res = await r.json();
-            dataList = res.record || res || [];
-            if (!Array.isArray(dataList)) dataList = [];
+            
+            // Critical Fix: JSONBin sometimes wraps data in .record, sometimes not.
+            if (res && res.record) {
+                dataList = res.record;
+            } else if (Array.isArray(res)) {
+                dataList = res;
+            } else {
+                dataList = [];
+            }
+
             updateUI();
             s.innerText = "Cloud Synced ✅";
-        } catch (e) { s.innerText = "Sync Error ❌"; }
+        } catch (e) { 
+            console.error("Fetch error:", e);
+            s.innerText = "Connection Error ❌"; 
+            document.getElementById('balDisplay').innerText = "Offline Mode";
+        }
     }
 
     async function pushData() {
         const s = document.getElementById('syncStatus');
         s.innerText = "Saving...";
         try {
-            await fetch(`https://api.jsonbin.io/v3/b/${B_ID}`, {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': A_KEY },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-Master-Key': A_KEY 
+                },
                 body: JSON.stringify(dataList)
             });
-            s.innerText = "All Changes Saved ✅";
+            if (res.ok) s.innerText = "All Changes Saved ✅";
+            else s.innerText = "Save Failed ❌";
         } catch (e) { s.innerText = "Save Error ❌"; }
     }
 
     function addOne() {
-        const d = document.getElementById('inDate').value, s = document.getElementById('inDesc').value, a = parseFloat(document.getElementById('inAmt').value), w = document.getElementById('inWho').value;
+        const d = document.getElementById('inDate').value, 
+              s = document.getElementById('inDesc').value, 
+              a = parseFloat(document.getElementById('inAmt').value), 
+              w = document.getElementById('inWho').value;
         if (!d || !s || isNaN(a)) return alert("Fill all fields");
         dataList.push({ id: Date.now(), d, s, a, w });
-        updateUI(); pushData();
-        document.getElementById('inDesc').value = ''; document.getElementById('inAmt').value = '';
+        updateUI(); 
+        pushData();
+        document.getElementById('inDesc').value = ''; 
+        document.getElementById('inAmt').value = '';
     }
 
     function removeOne(id) {
         if(confirm("Delete this?")) {
             dataList = dataList.filter(i => i.id !== id);
-            updateUI(); pushData();
+            updateUI(); 
+            pushData();
         }
     }
 
     function updateUI() {
-        const b = document.getElementById('listBody'), bal = document.getElementById('balDisplay'), tot = document.getElementById('totalVal');
-        b.innerHTML = ''; let eT = 0, nT = 0;
+        const b = document.getElementById('listBody'), 
+              bal = document.getElementById('balDisplay'), 
+              tot = document.getElementById('totalVal');
+        b.innerHTML = ''; 
+        let eT = 0, nT = 0;
+        
+        if (!Array.isArray(dataList)) dataList = [];
+
         dataList.sort((x,y) => y.id - x.id).forEach(i => {
             if (i.w === 'Erik') eT += i.a; else nT += i.a;
-            const dt = i.d.split('-').reverse().slice(0,2).join('/');
-            b.innerHTML += `<tr><td style="color:#999;font-size:0.7rem;">${dt}</td><td><b>${i.s}</b></td><td>$${i.a.toFixed(2)}</td><td class="${i.w.toLowerCase()}">${i.w}</td><td style="text-align:right;"><button class="del-btn" onclick="removeOne(${i.id})">✕</button></td></tr>`;
+            const dt = i.d ? i.d.split('-').reverse().slice(0,2).join('/') : '--/--';
+            b.innerHTML += `<tr><td style="color:#999;font-size:0.7rem;">${dt}</td><td><b>${i.s}</b></td><td>$${i.a.toFixed(2)}</td><td class="${String(i.w).toLowerCase()}">${i.w}</td><td style="text-align:right;"><button class="del-btn" onclick="removeOne(${i.id})">✕</button></td></tr>`;
         });
-        const total = eT + nT, diff = eT - (total/2);
+        
+        const total = eT + nT;
+        const diff = eT - (total/2);
         tot.innerText = "TRIP TOTAL: $" + total.toFixed(2);
-        if (dataList.length === 0) bal.innerText = "Ready for Takeoff";
-        else if (diff > 0) bal.innerHTML = `<span style="font-size:0.7rem;color:#666;font-weight:normal;">Nadine owes Erik</span><br>$${diff.toFixed(2)}`;
-        else if (diff < 0) bal.innerHTML = `<span style="font-size:0.7rem;color:#666;font-weight:normal;">Erik owes Nadine</span><br>$${Math.abs(diff).toFixed(2)}`;
-        else bal.innerText = "All Even! 🇳🇿";
+        
+        if (dataList.length === 0) {
+            bal.innerText = "Ready for Takeoff";
+        } else if (diff > 0) {
+            bal.innerHTML = `<span style="font-size:0.7rem;color:#666;font-weight:normal;">Nadine owes Erik</span><br>$${diff.toFixed(2)}`;
+        } else if (diff < 0) {
+            bal.innerHTML = `<span style="font-size:0.7rem;color:#666;font-weight:normal;">Erik owes Nadine</span><br>$${Math.abs(diff).toFixed(2)}`;
+        } else {
+            bal.innerText = "All Even! 🇳🇿";
+        }
     }
 
     document.getElementById('inDate').valueAsDate = new Date();
