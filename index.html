@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NZ Trip App</title>
+    <title>NZ Trip Final</title>
     <style>
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=100');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=200');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
         .container { width: 100%; max-width: 420px; }
         .header { text-align: center; color: white; padding: 10px 0; }
-        .header h2 { margin: 0; letter-spacing: 3px; font-weight: 900; text-transform: uppercase; }
-        .status { text-align: center; font-size: 10px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; }
+        .header h2 { margin: 0; letter-spacing: 3px; font-weight: 900; text-transform: uppercase; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+        .status { text-align: center; font-size: 10px; color: #fff; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; opacity: 0.8; }
         
-        .card { background: #ffffff; padding: 20px; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card { background: #ffffff; padding: 20px; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: #333; }
         .balance-box { background: #f8f9fa; color: #000; padding: 22px; border-radius: 12px; text-align: center; font-size: 1.3rem; font-weight: 900; text-transform: uppercase; border: 1px solid #eee; }
         
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #666; text-transform: uppercase; font-weight: bold; }
@@ -26,10 +26,11 @@
         .btn { width: 100%; padding: 18px; background: #000; border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        td { padding: 12px 4px; border-bottom: 1px solid #eee; font-size: 0.85rem; color: #333; }
+        td { padding: 12px 4px; border-bottom: 1px solid #eee; font-size: 0.85rem; color: #333; vertical-align: middle; }
         .erik { color: #007aff; font-weight: bold; }
         .nadine { color: #ff2d55; font-weight: bold; }
-        .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; border-radius: 6px; width: 30px; height: 30px; cursor: pointer; }
+        
+        .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         #totalVal { text-align: center; padding-top: 15px; font-weight: bold; font-size: 11px; color: #999; text-transform: uppercase; }
     </style>
 </head>
@@ -52,100 +53,47 @@
     <div class="card">
         <table><tbody id="listBody"></tbody></table>
         <div id="totalVal"></div>
-        <center><button onclick="fetchData()" style="background:none; border:none; color:#ccc; text-decoration:underline; font-size:10px; margin-top:20px; cursor:pointer;">FORCE REFRESH</button></center>
+        <center><button onclick="fetchData()" style="background:none; border:none; color:#ccc; text-decoration:underline; font-size:10px; margin-top:20px; cursor:pointer;">RE-SYNC FROM SHEET</button></center>
     </div>
 </div>
 
 <script>
-    // NEW BIN - I created this for you to ensure it's fresh and public
-    const B_ID = '67d7679ae41b4d34e49980f3'; 
-    const A_KEY = '$2a$10$RfeNG6fuZHWzfHxMyVS1AuNG9Zr11QdW3/GvgTM9CtJpGXk03oyOK';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzmJkvT_bpsKZrdGIn6_HinNS98xo6jvOjabWP8rzbqGmQRvOvsWQUJhe6dZ_s1NKHC/exec'; 
     let dataList = [];
 
     async function fetchData() {
         const s = document.getElementById('syncStatus');
         s.innerText = "Syncing...";
         try {
-            const r = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}/latest`, {
-                headers: { 'X-Master-Key': A_KEY, 'X-Bin-Meta': 'false' }
-            });
-            if (!r.ok) throw new Error();
-            dataList = await r.json();
-            if (!Array.isArray(dataList)) dataList = [];
+            const r = await fetch(API_URL);
+            const json = await r.json();
+            dataList = json || [];
             updateUI();
             s.innerText = "Cloud Synced ✅";
         } catch (e) { 
             s.innerText = "Sync Error ❌"; 
+            console.error(e);
         }
     }
 
     async function pushData() {
         const s = document.getElementById('syncStatus');
-        s.innerText = "Saving...";
+        s.innerText = "Saving to Sheet...";
         try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${B_ID}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': A_KEY },
+            // mode: 'no-cors' allows us to send data to Google without security blocks
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataList)
             });
-            if (res.ok) s.innerText = "Saved ✅";
-            else s.innerText = "Save Failed ❌";
-        } catch (e) { s.innerText = "Connection Lost ❌"; }
+            s.innerText = "Saved ✅";
+            // Google takes a second to process, so we refresh the UI after a short delay
+            setTimeout(fetchData, 1500);
+        } catch (e) { 
+            s.innerText = "Save Error ❌"; 
+        }
     }
 
     function addOne() {
-        const d = document.getElementById('inDate').value, 
-              s = document.getElementById('inDesc').value, 
-              a = parseFloat(document.getElementById('inAmt').value), 
-              w = document.getElementById('inWho').value;
-        if (!d || !s || isNaN(a)) return alert("Fill all fields");
-        
-        dataList.push({ id: Date.now(), d, s, a, w });
-        updateUI(); 
-        pushData();
-        
-        document.getElementById('inDesc').value = ''; 
-        document.getElementById('inAmt').value = '';
-    }
-
-    function removeOne(id) {
-        if(confirm("Delete?")) {
-            dataList = dataList.filter(i => i.id !== id);
-            updateUI(); 
-            pushData();
-        }
-    }
-
-    function updateUI() {
-        const b = document.getElementById('listBody'), 
-              bal = document.getElementById('balDisplay'), 
-              tot = document.getElementById('totalVal');
-        b.innerHTML = ''; 
-        let eT = 0, nT = 0;
-        
-        dataList.sort((x,y) => y.id - x.id).forEach(i => {
-            if (i.w === 'Erik') eT += i.a; else nT += i.a;
-            const dt = i.d ? i.d.split('-').reverse().slice(0,2).join('/') : '--/--';
-            b.innerHTML += `<tr><td>${dt}</td><td><b>${i.s}</b></td><td>$${i.a.toFixed(2)}</td><td class="${i.w.toLowerCase()}">${i.w}</td><td><button class="del-btn" onclick="removeOne(${i.id})">✕</button></td></tr>`;
-        });
-        
-        const total = eT + nT;
-        const diff = eT - (total/2);
-        tot.innerText = "Total: $" + total.toFixed(2);
-        
-        if (dataList.length === 0) {
-            bal.innerText = "No Expenses";
-        } else if (diff > 0) {
-            bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Nadine owes Erik</small><br>$${diff.toFixed(2)}`;
-        } else if (diff < 0) {
-            bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Erik owes Nadine</small><br>$${Math.abs(diff).toFixed(2)}`;
-        } else {
-            bal.innerText = "All Even! 🇳🇿";
-        }
-    }
-
-    document.getElementById('inDate').valueAsDate = new Date();
-    fetchData();
-</script>
-</body>
-</html>
