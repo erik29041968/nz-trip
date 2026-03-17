@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=101');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=102');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -22,7 +22,6 @@
         
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #666; text-transform: uppercase; font-weight: bold; }
         
-        /* FIXED IPHONE BOXES */
         input, select { 
             width: 100% !important; 
             padding: 14px; 
@@ -76,10 +75,119 @@
 
     <div class="card">
         <table><tbody id="listBody"></tbody></table>
-        <div id="totalVal">No data yet</div>
+        <div id="totalVal">Checking for data...</div>
         <center><button onclick="fetchData()" style="background:none; border:none; color:#ccc; text-decoration:underline; font-size:10px; margin-top:20px; cursor:pointer;">RE-SYNC DATA</button></center>
     </div>
 </div>
 
 <script>
-    const API_URL = 'https://script
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzmJkvT_bpsKZrdGIn6_HinNS98xo6jvOjabWP8rzbqGmQRvOvsWQUJhe6dZ_s1NKHC/exec'; 
+    let dataList = [];
+
+    async function fetchData() {
+        const s = document.getElementById('syncStatus');
+        s.innerText = "Syncing...";
+        try {
+            // Simplified fetch with 'credentials: omit' to stop Mac browser account confusion
+            const response = await fetch(API_URL + '?t=' + Date.now(), {
+                method: 'GET',
+                credentials: 'omit' 
+            });
+            const json = await response.json();
+            dataList = Array.isArray(json) ? json : [];
+            updateUI();
+            s.innerText = "Cloud Synced ✅";
+        } catch (e) { 
+            console.error(e);
+            s.innerText = "Sync Error - Tap Re-Sync"; 
+        }
+    }
+
+    async function pushData() {
+        const s = document.getElementById('syncStatus');
+        s.innerText = "Saving...";
+        try {
+            // Using text/plain content type to avoid Mac pre-flight security blocks
+            await fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(dataList)
+            });
+            s.innerText = "Saved ✅";
+            setTimeout(fetchData, 1500);
+        } catch (e) { s.innerText = "Save Error ❌"; }
+    }
+
+    function addOne() {
+        const d = document.getElementById('inDate').value, 
+              s = document.getElementById('inDesc').value, 
+              a = parseFloat(document.getElementById('inAmt').value), 
+              w = document.getElementById('inWho').value;
+        if (!d || !s || isNaN(a)) return alert("Fill all fields");
+        dataList.push({ id: Date.now(), d, s, a, w });
+        updateUI(); 
+        pushData();
+        document.getElementById('inDesc').value = ''; 
+        document.getElementById('inAmt').value = '';
+    }
+
+    function removeOne(id) {
+        if(confirm("Delete?")) {
+            dataList = dataList.filter(i => i.id !== id);
+            updateUI(); 
+            pushData();
+        }
+    }
+
+    function updateUI() {
+        const b = document.getElementById('listBody'), 
+              bal = document.getElementById('balDisplay'), 
+              tot = document.getElementById('totalVal');
+        
+        b.innerHTML = ''; 
+        let eT = 0, nT = 0;
+
+        dataList.sort((x,y) => y.id - x.id).forEach(i => {
+            const amt = parseFloat(i.a) || 0;
+            const whoPaid = i.w || 'Erik';
+            if (whoPaid === 'Erik') eT += amt; else nT += amt;
+            
+            let displayDate = "--/--";
+            if (i.d) {
+                try {
+                    let datePart = i.d.toString().split('T')[0]; 
+                    let parts = datePart.split('-'); 
+                    if (parts.length === 3) displayDate = parts[2] + "/" + parts[1];
+                } catch(e) { displayDate = "??/??"; }
+            }
+
+            b.innerHTML += `<tr>
+                <td class="col-date">${displayDate}</td>
+                <td class="col-desc">${i.s}</td>
+                <td class="col-amt">$${amt.toFixed(2)}</td>
+                <td class="col-who ${whoPaid.toLowerCase()}">${whoPaid}</td>
+                <td class="col-del"><button class="del-btn" onclick="removeOne(${i.id})">✕</button></td>
+            </tr>`;
+        });
+        
+        const total = eT + nT;
+        const diff = eT - (total/2);
+        tot.innerText = dataList.length > 0 ? "Trip Total: $" + total.toFixed(2) : "No entries found";
+        
+        if (dataList.length === 0) {
+            bal.innerText = "Ready to start";
+        } else if (diff > 0) {
+            bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Nadine owes Erik</small><br>$${diff.toFixed(2)}`;
+        } else if (diff < 0) {
+            bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Erik owes Nadine</small><br>$${Math.abs(diff).toFixed(2)}`;
+        } else {
+            bal.innerText = "All Even! 🇳🇿";
+        }
+    }
+
+    document.getElementById('inDate').valueAsDate = new Date();
+    fetchData();
+</script>
+</body>
+</html>
