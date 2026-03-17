@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=500');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=600');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -31,30 +31,4 @@
         .nadine { color: #ff2d55; font-weight: bold; }
         
         .del-btn { color: #ff3b30; background: none; border: 1px solid #ff3b30; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        #totalVal { text-align: center; padding-top: 15px; font-weight: bold; font-size: 11px; color: #999; text-transform: uppercase; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header"><h2>🇳🇿 AIR NZ TRIP</h2></div>
-    <div id="syncStatus" class="status">Connecting...</div>
-    <div class="card"><div id="balDisplay" class="balance-box">...</div></div>
-
-    <div class="card">
-        <label>Date</label><input type="date" id="inDate">
-        <label>Description</label><input type="text" id="inDesc" placeholder="Lunch, Fuel, etc.">
-        <label>Amount ($)</label><input type="number" id="inAmt" placeholder="0.00" inputmode="decimal">
-        <label>Who Paid?</label>
-        <select id="inWho"><option value="Erik">Erik</option><option value="Nadine">Nadine</option></select>
-        <button class="btn" onclick="addOne()">Add Expense</button>
-    </div>
-
-    <div class="card">
-        <table><tbody id="listBody"></tbody></table>
-        <div id="totalVal"></div>
-        <center><button onclick="fetchData()" style="background:none; border:none; color:#ccc; text-decoration:underline; font-size:10px; margin-top:20px; cursor:pointer;">FORCE REFRESH</button></center>
-    </div>
-</div>
-
-<script>
+        #totalVal { text-align: center; padding-top: 15px; font-weight: bold;
