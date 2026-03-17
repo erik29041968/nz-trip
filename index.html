@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=105');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=200');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -123,11 +123,15 @@
               a = parseFloat(document.getElementById('inAmt').value), 
               w = document.getElementById('inWho').value;
         if (!d || !s || isNaN(a)) return alert("Fill all fields");
+        
         dataList.push({ id: Date.now(), d, s, a, w });
         updateUI(); 
         pushData();
+        
+        // Reset fields
         document.getElementById('inDesc').value = ''; 
         document.getElementById('inAmt').value = '';
+        document.getElementById('inDate').valueAsDate = new Date(); // Reset to today
     }
 
     function removeOne(id) {
@@ -146,10 +150,13 @@
         b.innerHTML = ''; 
         let eT = 0, nT = 0;
 
-        // --- UPDATED SORTING LOGIC ---
-        // Sorts by Date (Newest first), then by Entry ID (Newest first)
+        // --- AGGRESSIVE SORTING ---
         dataList.sort((x, y) => {
-            if (y.d !== x.d) return new Date(y.d) - new Date(x.d);
+            const timeX = new Date(x.d).getTime();
+            const timeY = new Date(y.d).getTime();
+            // Sort by Date first (Newest at top)
+            if (timeY !== timeX) return timeY - timeX;
+            // If dates are identical, sort by entry ID (Newest at top)
             return y.id - x.id;
         });
 
@@ -161,9 +168,11 @@
             let displayDate = "--/--";
             if (i.d) {
                 try {
-                    let datePart = i.d.toString().split('T')[0]; 
-                    let parts = datePart.split('-'); 
-                    if (parts.length === 3) displayDate = parts[2] + "/" + parts[1];
+                    // Normalize the date string to ensure DD/MM format
+                    const dObj = new Date(i.d);
+                    const day = String(dObj.getDate()).padStart(2, '0');
+                    const month = String(dObj.getMonth() + 1).padStart(2, '0');
+                    displayDate = `${day}/${month}`;
                 } catch(e) { displayDate = "??/??"; }
             }
 
@@ -196,3 +205,4 @@
 </script>
 </body>
 </html>
+
