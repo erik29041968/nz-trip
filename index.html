@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=999');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=101');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -22,22 +22,18 @@
         
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #666; text-transform: uppercase; font-weight: bold; }
         
-        /* THE IPHONE DATE BOX & INPUT FIX */
+        /* FIXED IPHONE BOXES */
         input, select { 
             width: 100% !important; 
-            max-width: 100% !important;
-            min-width: 100% !important;
             padding: 14px; 
             margin: 6px 0 12px 0; 
             border-radius: 10px; 
             border: 1px solid #ccc; 
             font-size: 16px; 
-            outline: none; 
             background: #fff; 
             color: #000; 
             display: block;
             -webkit-appearance: none;
-            appearance: none;
         }
         
         .btn { width: 100%; padding: 18px; background: #000; border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
@@ -55,18 +51,9 @@
         .nadine { color: #ff2d55; }
         
         .del-btn { 
-            color: #ff3b30; 
-            background: #fff; 
-            border: 1px solid #ff3b30; 
-            border-radius: 8px; 
-            width: 32px; 
-            height: 32px; 
-            cursor: pointer; 
-            font-size: 14px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            color: #ff3b30; background: #fff; border: 1px solid #ff3b30; border-radius: 8px; 
+            width: 32px; height: 32px; cursor: pointer; font-size: 14px; font-weight: bold;
+            display: inline-flex; align-items: center; justify-content: center;
         }
         #totalVal { text-align: center; padding-top: 15px; font-weight: bold; font-size: 11px; color: #999; text-transform: uppercase; }
     </style>
@@ -87,121 +74,12 @@
         <button class="btn" onclick="addOne()">Add Expense</button>
     </div>
 
-    <div class="card" id="listCard" style="display:none;">
+    <div class="card">
         <table><tbody id="listBody"></tbody></table>
-        <div id="totalVal"></div>
+        <div id="totalVal">No data yet</div>
         <center><button onclick="fetchData()" style="background:none; border:none; color:#ccc; text-decoration:underline; font-size:10px; margin-top:20px; cursor:pointer;">RE-SYNC DATA</button></center>
     </div>
 </div>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzmJkvT_bpsKZrdGIn6_HinNS98xo6jvOjabWP8rzbqGmQRvOvsWQUJhe6dZ_s1NKHC/exec'; 
-    let dataList = [];
-
-    async function fetchData() {
-        const s = document.getElementById('syncStatus');
-        s.innerText = "Syncing...";
-        try {
-            // Force browser to bypass cache using Date.now()
-            const r = await fetch(API_URL + '?nocache=' + Date.now());
-            const json = await r.json();
-            dataList = Array.isArray(json) ? json : [];
-            updateUI();
-            s.innerText = "Cloud Synced ✅";
-        } catch (e) { 
-            s.innerText = "Re-connecting..."; 
-            // Auto-retry once after 2 seconds if it fails
-            setTimeout(fetchData, 2000);
-        }
-    }
-
-    async function pushData() {
-        const s = document.getElementById('syncStatus');
-        s.innerText = "Saving...";
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dataList)
-            });
-            s.innerText = "Saved ✅";
-            setTimeout(fetchData, 1000);
-        } catch (e) { s.innerText = "Save Error ❌"; }
-    }
-
-    function addOne() {
-        const d = document.getElementById('inDate').value, 
-              s = document.getElementById('inDesc').value, 
-              a = parseFloat(document.getElementById('inAmt').value), 
-              w = document.getElementById('inWho').value;
-        if (!d || !s || isNaN(a)) return alert("Fill all fields");
-        dataList.push({ id: Date.now(), d, s, a, w });
-        updateUI(); 
-        pushData();
-        document.getElementById('inDesc').value = ''; 
-        document.getElementById('inAmt').value = '';
-    }
-
-    function removeOne(id) {
-        if(confirm("Delete?")) {
-            dataList = dataList.filter(i => i.id !== id);
-            updateUI(); 
-            pushData();
-        }
-    }
-
-    function updateUI() {
-        const b = document.getElementById('listBody'), 
-              bal = document.getElementById('balDisplay'), 
-              tot = document.getElementById('totalVal'),
-              card = document.getElementById('listCard');
-        
-        b.innerHTML = ''; 
-        let eT = 0, nT = 0;
-        
-        card.style.display = dataList.length > 0 ? 'block' : 'none';
-
-        dataList.sort((x,y) => y.id - x.id).forEach(i => {
-            const amt = parseFloat(i.a) || 0;
-            const whoPaid = i.w || 'Erik';
-            if (whoPaid === 'Erik') eT += amt; else nT += amt;
-            
-            let displayDate = "--/--";
-            if (i.d) {
-                try {
-                    let datePart = i.d.toString().split('T')[0]; 
-                    let parts = datePart.split('-'); 
-                    if (parts.length === 3) displayDate = parts[2] + "/" + parts[1];
-                } catch(e) { displayDate = "??/??"; }
-            }
-
-            b.innerHTML += `<tr>
-                <td class="col-date">${displayDate}</td>
-                <td class="col-desc">${i.s}</td>
-                <td class="col-amt">$${amt.toFixed(2)}</td>
-                <td class="col-who ${whoPaid.toLowerCase()}">${whoPaid}</td>
-                <td class="col-del"><button class="del-btn" onclick="removeOne(${i.id})">✕</button></td>
-            </tr>`;
-        });
-        
-        const total = eT + nT;
-        const diff = eT - (total/2);
-        tot.innerText = "Trip Total: $" + total.toFixed(2);
-        
-        if (dataList.length === 0) {
-            bal.innerText = "No Expenses Yet";
-        } else if (diff > 0) {
-            bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Nadine owes Erik</small><br>$${diff.toFixed(2)}`;
-        } else if (diff < 0) {
-            bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Erik owes Nadine</small><br>$${Math.abs(diff).toFixed(2)}`;
-        } else {
-            bal.innerText = "All Even! 🇳🇿";
-        }
-    }
-
-    document.getElementById('inDate').valueAsDate = new Date();
-    fetchData();
-</script>
-</body>
-</html>
+    const API_URL = 'https://script
