@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=200');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=300');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -36,24 +36,37 @@
         }
         
         .btn { width: 100%; padding: 18px; background: #000; border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-edit-mode { background: #007aff; } /* Blue button when editing */
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        td { padding: 12px 2px; border-bottom: 1px solid #eee; font-size: 0.82rem; color: #333; vertical-align: middle; }
+        td { padding: 12px 0px; border-bottom: 1px solid #eee; font-size: 0.82rem; color: #333; vertical-align: middle; }
         
-        .col-date { width: 50px; color: #999; font-size: 0.7rem; }
+        .col-date { width: 45px; color: #999; font-size: 0.65rem; }
         .col-desc { width: auto; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .col-amt { width: 75px; text-align: right; font-weight: 600; }
-        .col-who { width: 65px; font-weight: 800; text-align: center; }
-        .col-del { width: 45px; text-align: right; }
+        .col-amt { width: 70px; text-align: right; font-weight: 600; padding-right: 5px; }
+        .col-who { width: 55px; font-weight: 800; text-align: center; }
+        .col-actions { width: 80px; text-align: right; white-space: nowrap; }
 
         .erik { color: #007aff; }
         .nadine { color: #ff2d55; }
         
-        .del-btn { 
-            color: #ff3b30; background: #fff; border: 1px solid #ff3b30; border-radius: 8px; 
-            width: 32px; height: 32px; cursor: pointer; font-size: 14px; font-weight: bold;
-            display: inline-flex; align-items: center; justify-content: center;
+        /* Action Buttons */
+        .act-btn { 
+            border-radius: 6px; 
+            width: 32px; 
+            height: 32px; 
+            cursor: pointer; 
+            font-size: 14px;
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 1px solid #ddd;
+            background: #fff;
+            margin-left: 4px;
         }
+        .btn-del { color: #ff3b30; border-color: #ff3b30; }
+        .btn-edit { color: #007aff; border-color: #007aff; }
+
         #totalVal { text-align: center; padding-top: 15px; font-weight: bold; font-size: 11px; color: #999; text-transform: uppercase; }
     </style>
 </head>
@@ -70,7 +83,7 @@
         <label>Amount ($)</label><input type="number" id="inAmt" placeholder="0.00" inputmode="decimal">
         <label>Who Paid?</label>
         <select id="inWho"><option value="Erik">Erik</option><option value="Nadine">Nadine</option></select>
-        <button class="btn" onclick="addOne()">Add Expense</button>
+        <button class="btn" id="mainBtn" onclick="addOne()">Add Expense</button>
     </div>
 
     <div class="card">
@@ -83,15 +96,13 @@
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbzmJkvT_bpsKZrdGIn6_HinNS98xo6jvOjabWP8rzbqGmQRvOvsWQUJhe6dZ_s1NKHC/exec'; 
     let dataList = [];
+    let editId = null; // Tracks if we are editing an existing item
 
     async function fetchData() {
         const s = document.getElementById('syncStatus');
         s.innerText = "Syncing...";
         try {
-            const response = await fetch(API_URL + '?t=' + Date.now(), {
-                method: 'GET',
-                credentials: 'omit' 
-            });
+            const response = await fetch(API_URL + '?t=' + Date.now(), { method: 'GET', credentials: 'omit' });
             const json = await response.json();
             dataList = Array.isArray(json) ? json : [];
             updateUI();
@@ -124,18 +135,44 @@
               w = document.getElementById('inWho').value;
         if (!d || !s || isNaN(a)) return alert("Fill all fields");
         
-        dataList.push({ id: Date.now(), d, s, a, w });
+        if (editId) {
+            // Update existing
+            const index = dataList.findIndex(i => i.id === editId);
+            if (index !== -1) dataList[index] = { id: editId, d, s, a, w };
+            editId = null;
+            document.getElementById('mainBtn').innerText = "Add Expense";
+            document.getElementById('mainBtn').classList.remove('btn-edit-mode');
+        } else {
+            // Add new
+            dataList.push({ id: Date.now(), d, s, a, w });
+        }
+
         updateUI(); 
         pushData();
         
-        // Reset fields
         document.getElementById('inDesc').value = ''; 
         document.getElementById('inAmt').value = '';
-        document.getElementById('inDate').valueAsDate = new Date(); // Reset to today
+        document.getElementById('inDate').valueAsDate = new Date();
+    }
+
+    function editOne(id) {
+        const item = dataList.find(i => i.id === id);
+        if (!item) return;
+
+        editId = id;
+        document.getElementById('inDate').value = item.d;
+        document.getElementById('inDesc').value = item.s;
+        document.getElementById('inAmt').value = item.a;
+        document.getElementById('inWho').value = item.w;
+
+        const btn = document.getElementById('mainBtn');
+        btn.innerText = "Update Expense";
+        btn.classList.add('btn-edit-mode');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function removeOne(id) {
-        if(confirm("Delete?")) {
+        if(confirm("Delete this?")) {
             dataList = dataList.filter(i => i.id !== id);
             updateUI(); 
             pushData();
@@ -150,13 +187,10 @@
         b.innerHTML = ''; 
         let eT = 0, nT = 0;
 
-        // --- AGGRESSIVE SORTING ---
         dataList.sort((x, y) => {
             const timeX = new Date(x.d).getTime();
             const timeY = new Date(y.d).getTime();
-            // Sort by Date first (Newest at top)
             if (timeY !== timeX) return timeY - timeX;
-            // If dates are identical, sort by entry ID (Newest at top)
             return y.id - x.id;
         });
 
@@ -168,11 +202,8 @@
             let displayDate = "--/--";
             if (i.d) {
                 try {
-                    // Normalize the date string to ensure DD/MM format
                     const dObj = new Date(i.d);
-                    const day = String(dObj.getDate()).padStart(2, '0');
-                    const month = String(dObj.getMonth() + 1).padStart(2, '0');
-                    displayDate = `${day}/${month}`;
+                    displayDate = `${String(dObj.getDate()).padStart(2, '0')}/${String(dObj.getMonth() + 1).padStart(2, '0')}`;
                 } catch(e) { displayDate = "??/??"; }
             }
 
@@ -180,8 +211,11 @@
                 <td class="col-date">${displayDate}</td>
                 <td class="col-desc">${i.s}</td>
                 <td class="col-amt">$${amt.toFixed(2)}</td>
-                <td class="col-who ${whoPaid.toLowerCase()}">${whoPaid}</td>
-                <td class="col-del"><button class="del-btn" onclick="removeOne(${i.id})">✕</button></td>
+                <td class="col-who ${whoPaid.toLowerCase()}">${whoPaid.substring(0,1)}</td>
+                <td class="col-actions">
+                    <button class="act-btn btn-edit" onclick="editOne(${i.id})">✎</button>
+                    <button class="act-btn btn-del" onclick="removeOne(${i.id})">✕</button>
+                </td>
             </tr>`;
         });
         
@@ -205,4 +239,3 @@
 </script>
 </body>
 </html>
-
