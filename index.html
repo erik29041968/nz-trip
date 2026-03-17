@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=800');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=900');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -21,14 +21,28 @@
         .balance-box { background: #f8f9fa; color: #000; padding: 22px; border-radius: 12px; text-align: center; font-size: 1.3rem; font-weight: 900; text-transform: uppercase; border: 1px solid #eee; }
         
         label { display: block; margin-top: 12px; font-size: 0.7rem; color: #666; text-transform: uppercase; font-weight: bold; }
-        input, select { width: 100%; padding: 14px; margin: 6px 0 12px 0; border-radius: 10px; border: 1px solid #ccc; font-size: 16px; outline: none; background: #fff; color: #000; }
+        
+        /* THE IPHONE DATE BOX FIX */
+        input, select { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 6px 0 12px 0; 
+            border-radius: 10px; 
+            border: 1px solid #ccc; 
+            font-size: 16px; 
+            outline: none; 
+            background: #fff; 
+            color: #000; 
+            display: block;
+            -webkit-appearance: none; /* Removes forced iPhone styling */
+            appearance: none;
+        }
         
         .btn { width: 100%; padding: 18px; background: #000; border: none; color: white; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
         td { padding: 12px 2px; border-bottom: 1px solid #eee; font-size: 0.82rem; color: #333; vertical-align: middle; }
         
-        /* Column Widths */
         .col-date { width: 50px; color: #999; font-size: 0.7rem; }
         .col-desc { width: auto; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .col-amt { width: 75px; text-align: right; font-weight: 600; }
@@ -56,52 +70,3 @@
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header"><h2>🇳🇿 AIR NZ TRIP</h2></div>
-    <div id="syncStatus" class="status">Connecting...</div>
-    <div class="card"><div id="balDisplay" class="balance-box">...</div></div>
-
-    <div class="card">
-        <label>Date</label><input type="date" id="inDate">
-        <label>Description</label><input type="text" id="inDesc" placeholder="Lunch, Fuel, etc.">
-        <label>Amount ($)</label><input type="number" id="inAmt" placeholder="0.00" inputmode="decimal">
-        <label>Who Paid?</label>
-        <select id="inWho"><option value="Erik">Erik</option><option value="Nadine">Nadine</option></select>
-        <button class="btn" onclick="addOne()">Add Expense</button>
-    </div>
-
-    <div class="card" id="listCard" style="display:none;">
-        <table><tbody id="listBody"></tbody></table>
-        <div id="totalVal"></div>
-        <center><button onclick="fetchData()" style="background:none; border:none; color:#ccc; text-decoration:underline; font-size:10px; margin-top:20px; cursor:pointer;">RE-SYNC DATA</button></center>
-    </div>
-</div>
-
-<script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzmJkvT_bpsKZrdGIn6_HinNS98xo6jvOjabWP8rzbqGmQRvOvsWQUJhe6dZ_s1NKHC/exec'; 
-    let dataList = [];
-
-    async function fetchData() {
-        const s = document.getElementById('syncStatus');
-        s.innerText = "Syncing...";
-        try {
-            const r = await fetch(API_URL + '?t=' + Date.now());
-            const json = await r.json();
-            dataList = Array.isArray(json) ? json : [];
-            updateUI();
-            s.innerText = "Cloud Synced ✅";
-        } catch (e) { 
-            s.innerText = "Connection Error ❌"; 
-            console.error(e);
-        }
-    }
-
-    async function pushData() {
-        const s = document.getElementById('syncStatus');
-        s.innerText = "Saving...";
-        try {
-            await fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type':
