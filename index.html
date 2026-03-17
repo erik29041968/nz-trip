@@ -8,7 +8,7 @@
         * { box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=400');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('./background.jpeg?v=500');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #000; margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh;
         }
@@ -42,12 +42,14 @@
         .nadine { color: #ff2d55; }
         
         .act-btn { 
-            border-radius: 6px; width: 30px; height: 30px; cursor: pointer; font-size: 12px; 
-            display: inline-flex; align-items: center; justify-content: center; font-weight: bold;
-            margin-left: 4px; border: 1px solid;
+            border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 16px; 
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-left: 4px; border: 1px solid #eee; background: #fff;
+            transition: transform 0.1s active;
         }
-        .btn-edit { color: #007aff; border-color: #007aff; background: #f0f7ff; }
-        .btn-del { color: #ff3b30; border-color: #ff3b30; background: #fff5f5; }
+        .act-btn:active { transform: scale(0.9); }
+        .btn-edit { color: #007aff; border-color: #007aff; }
+        .btn-del { color: #ff3b30; border-color: #ff3b30; }
 
         #totalVal { text-align: center; padding-top: 15px; font-weight: bold; font-size: 11px; color: #999; text-transform: uppercase; }
     </style>
@@ -149,55 +151,3 @@
         if(confirm("Delete this?")) {
             dataList = dataList.filter(i => i.id !== id);
             updateUI(); pushData();
-        }
-    }
-
-    function updateUI() {
-        const b = document.getElementById('listBody'), 
-              bal = document.getElementById('balDisplay'), 
-              tot = document.getElementById('totalVal');
-        b.innerHTML = ''; 
-        let eT = 0, nT = 0;
-
-        dataList.sort((x, y) => {
-            const tX = new Date(x.d).getTime(), tY = new Date(y.d).getTime();
-            return tY !== tX ? tY - tX : y.id - x.id;
-        });
-
-        dataList.forEach(i => {
-            const amt = parseFloat(i.a) || 0;
-            const who = i.w || 'Erik';
-            if (who === 'Erik') eT += amt; else nT += amt;
-            
-            let dispD = "--/--";
-            if (i.d) {
-                const dO = new Date(i.d);
-                dispD = `${String(dO.getDate()).padStart(2,'0')}/${String(dO.getMonth()+1).padStart(2,'0')}`;
-            }
-
-            b.innerHTML += `<tr>
-                <td class="col-date">${dispD}</td>
-                <td class="col-desc">${i.s}</td>
-                <td class="col-amt">$${amt.toFixed(2)}</td>
-                <td class="col-who ${who.toLowerCase()}">${who.substring(0,1)}</td>
-                <td class="col-actions">
-                    <button class="act-btn btn-edit" onclick="editOne(${i.id})">EDT</button>
-                    <button class="act-btn btn-del" onclick="removeOne(${i.id})">X</button>
-                </td>
-            </tr>`;
-        });
-        
-        const total = eT + nT;
-        const diff = eT - (total/2);
-        tot.innerText = dataList.length > 0 ? "Trip Total: $" + total.toFixed(2) : "No entries";
-        if (dataList.length === 0) { bal.innerText = "Ready to start"; } 
-        else if (diff > 0) { bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Nadine owes Erik</small><br>$${diff.toFixed(2)}`; } 
-        else if (diff < 0) { bal.innerHTML = `<small style="font-size:0.8rem; font-weight:normal; color:#666;">Erik owes Nadine</small><br>$${Math.abs(diff).toFixed(2)}`; } 
-        else { bal.innerText = "All Even! 🇳🇿"; }
-    }
-
-    document.getElementById('inDate').valueAsDate = new Date();
-    fetchData();
-</script>
-</body>
-</html>
